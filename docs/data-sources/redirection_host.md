@@ -28,16 +28,16 @@ data "nginxproxymanager_redirection_host" "test" {
 ### Read-Only
 
 - `advanced_config` (String) Advanced NGINX config.
-- `block_exploits` (Boolean) Whether to block exploits
-- `certificate_id` (Number) ID of the certificate to use.
-- `domain_names` (List of String) Domain names to accept.
-- `enabled` (Boolean) Enable or disable the redirection host.
-- `forward_domain_name` (String) Domain name to redirect the request to.
-- `forward_http_code` (Number) HTTP code to redirect with.
-- `forward_scheme` (String) Scheme to use when forwarding.
-- `hsts_enabled` (Boolean) Enable HSTS.
-- `hsts_subdomains` (Boolean) Enable HSTS for subdomains.
-- `http2_support` (Boolean) Whether to enable HTTP2 support.
-- `owner_user_id` (Number) ID of the user which owns the redirection host.
-- `preserve_path` (Boolean) Whether to preserve the request path in the redirected request.
-- `ssl_forced` (Boolean) Whether to force SSL.
+- `block_exploits` (Boolean) Whether exploits are blocked.
+- `certificate_id` (Number) ID of the certificate used.
+- `domain_names` (List of String) Domain names accepted.
+- `enabled` (Boolean) Whether the redirection host is enabled.
+- `forward_domain_name` (String) Domain name that the request is redirected to.
+- `forward_http_code` (Number) HTTP code redirected with.
+- `forward_scheme` (String) Scheme used when forwarding.
+- `hsts_enabled` (Boolean) Whether HSTS is enabled.
+- `hsts_subdomains` (Boolean) Whether HSTS is enabled for subdomains.
+- `http2_support` (Boolean) Whether HTTP2 support is enabled.
+- `owner_user_id` (Number) ID of the user who owns the redirection host.
+- `preserve_path` (Boolean) Whether the request path is preserved in the redirected request.
+- `ssl_forced` (Boolean) Whether SSL is forced.

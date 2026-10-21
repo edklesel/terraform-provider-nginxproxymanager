@@ -17,13 +17,13 @@ description: |-
 
 ### Required
 
-- `id` (String) ID of the proxy host.
+- `id` (String) ID of the stream host.
 
 ### Read-Only
 
-- `forwarding_host` (String) Host to forward the stream to.
-- `forwarding_port` (Number) Port to forward the stream to.
+- `forwarding_host` (String) Host that the stream is forwarded to.
+- `forwarding_port` (Number) Port that the stream is forwarded on.
 - `incoming_port` (Number) Port the request is coming in on.
-- `owner_user_id` (Number) ID of the user which owns the stream.
-- `tcp_forwarding` (Boolean) Whether to enable TCP Forwarding
-- `udp_forwarding` (Boolean) Whether to enable UDP Forwarding
+- `owner_user_id` (Number) ID of the user who owns the stream.
+- `tcp_forwarding` (Boolean) Whether TCP Forwarding is enabled.
+- `udp_forwarding` (Boolean) Whether UDP Forwarding is enabled.

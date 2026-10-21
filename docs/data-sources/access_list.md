@@ -30,9 +30,9 @@ data "nginxproxymanager_access_list" "test" {
 - `client` (Block List) (see [below for nested schema](#nestedblock--client))
 - `item` (Block List) (see [below for nested schema](#nestedblock--item))
 - `name` (String) Name of the access list.
-- `owner_user_id` (Number) ID of the user which owns the access list.
-- `pass_auth` (Boolean) Whether the to pass auth to the host.
-- `satisfy_any` (Boolean) Whether a request should pass if it satisfies any of the rules.
+- `owner_user_id` (Number) ID of the user who owns the access list.
+- `pass_auth` (Boolean) Whether responsibility for auth passes to the host.
+- `satisfy_any` (Boolean) Whether a request passes if it satisfies any of the rules.
 
 <a id="nestedblock--client"></a>
 ### Nested Schema for `client`

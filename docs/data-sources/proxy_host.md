@@ -27,23 +27,23 @@ data "nginxproxymanager_proxy_host" "test" {
 
 ### Read-Only
 
-- `access_list_id` (Number) ID of the access list to use.
+- `access_list_id` (Number) ID of the access list used.
 - `advanced_config` (String) Advanced NGINX config.
-- `allow_websocket_upgrade` (Boolean) Whether to allow websockets.
-- `block_exploits` (Boolean) Whether to block exploits
-- `caching_enabled` (Boolean) Whether to enable caching,
-- `certificate_id` (Number) ID of the certificate to use.
-- `domain_names` (List of String) Domain names to accept.
-- `enabled` (Boolean) Enable or disable the proxy host.
-- `forward_host` (String) Host to forward the request on to.
-- `forward_port` (Number) Port to forward to.
-- `forward_scheme` (String) Scheme to use when forwarding.
-- `hsts_enabled` (Boolean) Enable HSTS.
-- `hsts_subdomains` (Boolean) Enable HSTS for subdomains.
-- `http2_support` (Boolean) Whether to enable HTTP2 support.
+- `allow_websocket_upgrade` (Boolean) Whether websockets are allowed.
+- `block_exploits` (Boolean) Whether exploits are blocked.
+- `caching_enabled` (Boolean) Whether caching is enabled.
+- `certificate_id` (Number) ID of the certificate used.
+- `domain_names` (List of String) Domain names accepted.
+- `enabled` (Boolean) Whether the proxy host is enabled or disabled.
+- `forward_host` (String) Host that the request is forwarded to.
+- `forward_port` (Number) Port forwarded to.
+- `forward_scheme` (String) Scheme used when forwarding.
+- `hsts_enabled` (Boolean) Whether HSTS is enabled.
+- `hsts_subdomains` (Boolean) Whether HSTS is enabled for subdomains.
+- `http2_support` (Boolean) Whether HTTP2 support is enabled.
 - `location` (Block List) (see [below for nested schema](#nestedblock--location))
-- `owner_user_id` (Number) ID of the user which owns the proxy host.
-- `ssl_forced` (Boolean) Whether to force SSL.
+- `owner_user_id` (Number) ID of the user who owns the proxy host.
+- `ssl_forced` (Boolean) Whether SSL is forced.
 
 <a id="nestedblock--location"></a>
 ### Nested Schema for `location`
