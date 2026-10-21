@@ -47,15 +47,15 @@ func (d *accessListDataSource) Schema(_ context.Context, _ datasource.SchemaRequ
 			},
 			"satisfy_any": schema.BoolAttribute{
 				Computed:    true,
-				Description: "Whether a request should pass if it satisfies any of the rules.",
+				Description: "Whether a request passes if it satisfies any of the rules.",
 			},
 			"pass_auth": schema.BoolAttribute{
 				Computed:    true,
-				Description: "Whether the to pass auth to the host.",
+				Description: "Whether responsibility for auth passes to the host.",
 			},
 			"owner_user_id": schema.Int64Attribute{
 				Computed:    true,
-				Description: "ID of the user which owns the access list.",
+				Description: "ID of the user who owns the access list.",
 			},
 		},
 		Blocks: map[string]schema.Block{

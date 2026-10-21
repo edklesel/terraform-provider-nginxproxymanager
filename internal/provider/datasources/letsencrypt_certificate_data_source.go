@@ -61,33 +61,16 @@ func (r *letsencryptCertificateDataSource) Schema(_ context.Context, _ datasourc
 			},
 			"letsencrypt_email": schema.StringAttribute{
 				Computed:    true,
-				Description: "Email address to use for the Letsencrypt certificate.",
+				Description: "Email address used for the Letsencrypt certificate.",
 			},
 			"propagation_seconds": schema.Int64Attribute{
 				Computed:    true,
-				Description: "Number of seconds to wait for the DNS challenge to propagate. Defaults to the provider default if left empty.",
+				Description: "Number of seconds waited for the DNS challenge to propagate. Defaults to the provider default if left empty.",
 			},
 			"nice_name": schema.StringAttribute{
 				Computed:    true,
 				Description: "Nice name for the certificate.",
 			},
-			// "from": schema.Int64Attribute{
-			// 	Computed:    true,
-			// 	Description: "The date the certificate is valid from.",
-			// },
-			// "to": schema.Int64Attribute{
-			// 	Computed:    true,
-			// 	Description: "The date the certificate is valid until.",
-			// },
-			// "cn": schema.StringAttribute{
-			// 	Computed:    true,
-			// 	Description: "The Common Name of the certificate",
-			// },
-			// "issuer": schema.StringAttribute{
-			// 	Computed:    true,
-			// 	Description: "Issuer of the certificate",
-			// },
-
 		},
 	}
 }

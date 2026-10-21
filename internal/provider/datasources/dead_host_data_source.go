@@ -42,32 +42,32 @@ func (r *deadHostDataSource) Schema(_ context.Context, _ datasource.SchemaReques
 			},
 			"domain_names": schema.ListAttribute{
 				Computed:    true,
-				Description: "Domain names to accept.",
+				Description: "Domain names accepted.",
 				ElementType: types.StringType,
 			},
 			"certificate_id": schema.Int64Attribute{
 				Computed:    true,
-				Description: "ID of the certificate to use.",
+				Description: "ID of the certificate used.",
 			},
 			"ssl_forced": schema.BoolAttribute{
 				Computed:    true,
-				Description: "Whether to force SSL.",
+				Description: "Whether SSL is forced.",
 			},
 			"http2_support": schema.BoolAttribute{
 				Computed:    true,
-				Description: "Whether to enable HTTP2 support.",
+				Description: "Whether HTTP2 support is enabled.",
 			},
 			"enabled": schema.BoolAttribute{
 				Computed:    true,
-				Description: "Enable or disable the dead host.",
+				Description: "Whether the dead host is enabled.",
 			},
 			"hsts_enabled": schema.BoolAttribute{
 				Computed:    true,
-				Description: "Enable HSTS.",
+				Description: "Whether HSTS is enabled.",
 			},
 			"hsts_subdomains": schema.BoolAttribute{
 				Computed:    true,
-				Description: "Enable HSTS for subdomains.",
+				Description: "Whether HSTS is enabled for subdomains.",
 			},
 			"advanced_config": schema.StringAttribute{
 				Computed:    true,
@@ -75,7 +75,7 @@ func (r *deadHostDataSource) Schema(_ context.Context, _ datasource.SchemaReques
 			},
 			"owner_user_id": schema.Int64Attribute{
 				Computed:    true,
-				Description: "ID of the user which owns the dead host.",
+				Description: "ID of the user who owns the dead host.",
 			},
 		},
 	}

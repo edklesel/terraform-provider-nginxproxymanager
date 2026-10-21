@@ -31,6 +31,6 @@ data "nginxproxymanager_letsencrypt_certificate" "example" {
 - `dns_provider` (String) Which DNS provider is used for the DNS challenge..
 - `dns_provider_credentials` (String, Sensitive) Credentials for the chosen DNS provider.
 - `domain_names` (List of String) Domain names for the certificate.
-- `letsencrypt_email` (String) Email address to use for the Letsencrypt certificate.
+- `letsencrypt_email` (String) Email address used for the Letsencrypt certificate.
 - `nice_name` (String) Nice name for the certificate.
-- `propagation_seconds` (Number) Number of seconds to wait for the DNS challenge to propagate. Defaults to the provider default if left empty.
+- `propagation_seconds` (Number) Number of seconds waited for the DNS challenge to propagate. Defaults to the provider default if left empty.

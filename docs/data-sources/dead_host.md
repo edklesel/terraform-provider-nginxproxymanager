@@ -28,11 +28,11 @@ data "nginxproxymanager_dead_host" "test" {
 ### Read-Only
 
 - `advanced_config` (String) Advanced NGINX config.
-- `certificate_id` (Number) ID of the certificate to use.
-- `domain_names` (List of String) Domain names to accept.
-- `enabled` (Boolean) Enable or disable the dead host.
-- `hsts_enabled` (Boolean) Enable HSTS.
-- `hsts_subdomains` (Boolean) Enable HSTS for subdomains.
-- `http2_support` (Boolean) Whether to enable HTTP2 support.
-- `owner_user_id` (Number) ID of the user which owns the dead host.
-- `ssl_forced` (Boolean) Whether to force SSL.
+- `certificate_id` (Number) ID of the certificate used.
+- `domain_names` (List of String) Domain names accepted.
+- `enabled` (Boolean) Whether the dead host is enabled.
+- `hsts_enabled` (Boolean) Whether HSTS is enabled.
+- `hsts_subdomains` (Boolean) Whether HSTS is enabled for subdomains.
+- `http2_support` (Boolean) Whether HTTP2 support is enabled.
+- `owner_user_id` (Number) ID of the user who owns the dead host.
+- `ssl_forced` (Boolean) Whether SSL is forced.
