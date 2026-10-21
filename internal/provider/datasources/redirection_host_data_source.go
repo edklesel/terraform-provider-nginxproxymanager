@@ -42,48 +42,48 @@ func (d *redirectionHostDataSource) Schema(_ context.Context, _ datasource.Schem
 			},
 			"forward_domain_name": schema.StringAttribute{
 				Computed:    true,
-				Description: "Domain name to redirect the request to.",
+				Description: "Domain name that the request is redirected to.",
 			},
 			"forward_http_code": schema.Int64Attribute{
 				Computed:    true,
-				Description: "HTTP code to redirect with.",
+				Description: "HTTP code redirected with.",
 			},
 			"forward_scheme": schema.StringAttribute{
 				Computed:    true,
-				Description: "Scheme to use when forwarding.",
+				Description: "Scheme used when forwarding.",
 			},
 			"domain_names": schema.ListAttribute{
 				Computed:    true,
-				Description: "Domain names to accept.",
+				Description: "Domain names accepted.",
 				ElementType: types.StringType,
 			},
 			"certificate_id": schema.Int64Attribute{
 				Computed:    true,
-				Description: "ID of the certificate to use.",
+				Description: "ID of the certificate used.",
 			},
 			"ssl_forced": schema.BoolAttribute{
 				Computed:    true,
-				Description: "Whether to force SSL.",
+				Description: "Whether SSL is forced.",
 			},
 			"http2_support": schema.BoolAttribute{
 				Computed:    true,
-				Description: "Whether to enable HTTP2 support.",
+				Description: "Whether HTTP2 support is enabled.",
 			},
 			"block_exploits": schema.BoolAttribute{
 				Computed:    true,
-				Description: "Whether to block exploits",
+				Description: "Whether exploits are blocked.",
 			},
 			"enabled": schema.BoolAttribute{
 				Computed:    true,
-				Description: "Enable or disable the redirection host.",
+				Description: "Whether the redirection host is enabled.",
 			},
 			"hsts_enabled": schema.BoolAttribute{
 				Computed:    true,
-				Description: "Enable HSTS.",
+				Description: "Whether HSTS is enabled.",
 			},
 			"hsts_subdomains": schema.BoolAttribute{
 				Computed:    true,
-				Description: "Enable HSTS for subdomains.",
+				Description: "Whether HSTS is enabled for subdomains.",
 			},
 			"advanced_config": schema.StringAttribute{
 				Computed:    true,
@@ -91,11 +91,11 @@ func (d *redirectionHostDataSource) Schema(_ context.Context, _ datasource.Schem
 			},
 			"owner_user_id": schema.Int64Attribute{
 				Computed:    true,
-				Description: "ID of the user which owns the redirection host.",
+				Description: "ID of the user who owns the redirection host.",
 			},
 			"preserve_path": schema.BoolAttribute{
 				Computed:    true,
-				Description: "Whether to preserve the request path in the redirected request.",
+				Description: "Whether the request path is preserved in the redirected request.",
 			},
 		},
 	}

@@ -42,60 +42,60 @@ func (d *proxyHostDataSource) Schema(_ context.Context, _ datasource.SchemaReque
 			},
 			"forward_host": schema.StringAttribute{
 				Computed:    true,
-				Description: "Host to forward the request on to.",
+				Description: "Host that the request is forwarded to.",
 			},
 			"forward_port": schema.Int64Attribute{
 				Computed:    true,
-				Description: "Port to forward to.",
+				Description: "Port forwarded to.",
 			},
 			"forward_scheme": schema.StringAttribute{
 				Computed:    true,
-				Description: "Scheme to use when forwarding.",
+				Description: "Scheme used when forwarding.",
 			},
 			"domain_names": schema.ListAttribute{
 				Computed:    true,
-				Description: "Domain names to accept.",
+				Description: "Domain names accepted.",
 				ElementType: types.StringType,
 			},
 			"access_list_id": schema.Int64Attribute{
 				Computed:    true,
-				Description: "ID of the access list to use.",
+				Description: "ID of the access list used.",
 			},
 			"certificate_id": schema.Int64Attribute{
 				Computed:    true,
-				Description: "ID of the certificate to use.",
+				Description: "ID of the certificate used.",
 			},
 			"ssl_forced": schema.BoolAttribute{
 				Computed:    true,
-				Description: "Whether to force SSL.",
+				Description: "Whether SSL is forced.",
 			},
 			"caching_enabled": schema.BoolAttribute{
 				Computed:    true,
-				Description: "Whether to enable caching,",
+				Description: "Whether caching is enabled.",
 			},
 			"block_exploits": schema.BoolAttribute{
 				Computed:    true,
-				Description: "Whether to block exploits",
+				Description: "Whether exploits are blocked.",
 			},
 			"allow_websocket_upgrade": schema.BoolAttribute{
 				Computed:    true,
-				Description: "Whether to allow websockets.",
+				Description: "Whether websockets are allowed.",
 			},
 			"http2_support": schema.BoolAttribute{
 				Computed:    true,
-				Description: "Whether to enable HTTP2 support.",
+				Description: "Whether HTTP2 support is enabled.",
 			},
 			"enabled": schema.BoolAttribute{
 				Computed:    true,
-				Description: "Enable or disable the proxy host.",
+				Description: "Whether the proxy host is enabled or disabled.",
 			},
 			"hsts_enabled": schema.BoolAttribute{
 				Computed:    true,
-				Description: "Enable HSTS.",
+				Description: "Whether HSTS is enabled.",
 			},
 			"hsts_subdomains": schema.BoolAttribute{
 				Computed:    true,
-				Description: "Enable HSTS for subdomains.",
+				Description: "Whether HSTS is enabled for subdomains.",
 			},
 			"advanced_config": schema.StringAttribute{
 				Computed:    true,
@@ -103,7 +103,7 @@ func (d *proxyHostDataSource) Schema(_ context.Context, _ datasource.SchemaReque
 			},
 			"owner_user_id": schema.Int64Attribute{
 				Computed:    true,
-				Description: "ID of the user which owns the proxy host.",
+				Description: "ID of the user who owns the proxy host.",
 			},
 		},
 		Blocks: map[string]schema.Block{

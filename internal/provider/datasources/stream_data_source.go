@@ -38,15 +38,15 @@ func (r *streamDataSource) Schema(_ context.Context, _ datasource.SchemaRequest,
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Required:    true,
-				Description: "ID of the proxy host.",
+				Description: "ID of the stream host.",
 			},
 			"forwarding_host": schema.StringAttribute{
 				Computed:    true,
-				Description: "Host to forward the stream to.",
+				Description: "Host that the stream is forwarded to.",
 			},
 			"forwarding_port": schema.Int64Attribute{
 				Computed:    true,
-				Description: "Port to forward the stream to.",
+				Description: "Port that the stream is forwarded on.",
 			},
 			"incoming_port": schema.Int64Attribute{
 				Computed:    true,
@@ -54,15 +54,15 @@ func (r *streamDataSource) Schema(_ context.Context, _ datasource.SchemaRequest,
 			},
 			"tcp_forwarding": schema.BoolAttribute{
 				Computed:    true,
-				Description: "Whether to enable TCP Forwarding",
+				Description: "Whether TCP Forwarding is enabled.",
 			},
 			"udp_forwarding": schema.BoolAttribute{
 				Computed:    true,
-				Description: "Whether to enable UDP Forwarding",
+				Description: "Whether UDP Forwarding is enabled.",
 			},
 			"owner_user_id": schema.Int64Attribute{
 				Computed:    true,
-				Description: "ID of the user which owns the stream.",
+				Description: "ID of the user who owns the stream.",
 			},
 		},
 	}
