@@ -198,6 +198,11 @@ func (r *accessListResource) Read(ctx context.Context, req resource.ReadRequest,
 	}
 
 	access_list, err := r.client.AccessLists.Get(id)
+	if sdk.IsNotFound(err) {
+		// Deleted outside Terraform, so plan to create it again
+		resp.State.RemoveResource(ctx)
+		return
+	}
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("Unable to read access list with ID %s.", state.ID.ValueString()),
@@ -321,7 +326,7 @@ func (r *accessListResource) Delete(ctx context.Context, req resource.DeleteRequ
 	}
 
 	err = r.client.AccessLists.Delete(id)
-	if err != nil {
+	if err != nil && !sdk.IsNotFound(err) {
 		resp.Diagnostics.AddError(
 			"Error deleting access list",
 			fmt.Sprintf("Unable to delete access list, unexpected error: %s", err.Error()),
