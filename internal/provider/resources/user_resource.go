@@ -166,6 +166,11 @@ func (r *userResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	}
 
 	user, err := r.client.Users.Get(id)
+	if sdk.IsNotFound(err) {
+		// Deleted outside Terraform, so plan to create it again
+		resp.State.RemoveResource(ctx)
+		return
+	}
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("Unable to read user with ID %s.", state.ID.ValueString()),
@@ -269,7 +274,7 @@ func (r *userResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 	}
 
 	err = r.client.Users.Delete(id)
-	if err != nil {
+	if err != nil && !sdk.IsNotFound(err) {
 		resp.Diagnostics.AddError(
 			"Error deleting user",
 			fmt.Sprintf("Unable to delete user, unexpected error: %s", err.Error()),

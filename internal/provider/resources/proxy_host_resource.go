@@ -329,6 +329,11 @@ func (r *proxyHostResource) Read(ctx context.Context, req resource.ReadRequest, 
 	}
 
 	proxyHost, err := r.client.ProxyHosts.Get(id)
+	if sdk.IsNotFound(err) {
+		// Deleted outside Terraform, so plan to create it again
+		resp.State.RemoveResource(ctx)
+		return
+	}
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("Unable to read proxy host with ID %s.", state.ID.ValueString()),
@@ -493,7 +498,7 @@ func (r *proxyHostResource) Delete(ctx context.Context, req resource.DeleteReque
 	}
 
 	err = r.client.ProxyHosts.Delete(id)
-	if err != nil {
+	if err != nil && !sdk.IsNotFound(err) {
 		resp.Diagnostics.AddError(
 			"Error deleting proxy host",
 			fmt.Sprintf("Unable to delete proxy host, unexpected error: %s", err.Error()),

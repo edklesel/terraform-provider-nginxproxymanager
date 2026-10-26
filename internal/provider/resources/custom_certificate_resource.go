@@ -178,6 +178,11 @@ func (r *customCertificateResource) Read(ctx context.Context, req resource.ReadR
 	}
 
 	certificate, err := r.client.Certificates.Get(id)
+	if sdk.IsNotFound(err) {
+		// Deleted outside Terraform, so plan to create it again
+		resp.State.RemoveResource(ctx)
+		return
+	}
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("Unable to read certificate with ID %s.", state.ID.ValueString()),
@@ -221,7 +226,7 @@ func (r *customCertificateResource) Delete(ctx context.Context, req resource.Del
 	}
 
 	err = r.client.Certificates.Delete(id)
-	if err != nil {
+	if err != nil && !sdk.IsNotFound(err) {
 		resp.Diagnostics.AddError(
 			"Error deleting certificate",
 			fmt.Sprintf("Unable to delete certificate, unexpected error: %s", err.Error()),

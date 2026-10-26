@@ -175,6 +175,11 @@ func (r *userPermissionsResource) Read(ctx context.Context, req resource.ReadReq
 	}
 
 	user, err := r.client.Users.Get(int(state.UserID.ValueInt64()))
+	if sdk.IsNotFound(err) {
+		// Deleted outside Terraform, so plan to create it again
+		resp.State.RemoveResource(ctx)
+		return
+	}
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("Unable to read user with ID %d.", state.UserID.ValueInt64()),
@@ -257,6 +262,10 @@ func (r *userPermissionsResource) Delete(ctx context.Context, req resource.Delet
 	}
 
 	user, err := r.client.Users.Get(int(state.UserID.ValueInt64()))
+	if sdk.IsNotFound(err) {
+		// The permissions went with the user
+		return
+	}
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Error finding user.",

@@ -84,8 +84,26 @@ func (r *userPasswordResource) Create(ctx context.Context, req resource.CreateRe
 	}
 }
 
-// Password isn't returned from the API, so we don't read this resource.
+// The password isn't returned from the API, so this only checks the user
+// still exists.
 func (r *userPasswordResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state models.UserPasswordModel
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	_, err := r.client.Users.Get(int(state.UserID.ValueInt64()))
+	if sdk.IsNotFound(err) {
+		resp.State.RemoveResource(ctx)
+		return
+	}
+	if err != nil {
+		resp.Diagnostics.AddError(
+			fmt.Sprintf("Unable to read user with ID %d.", state.UserID.ValueInt64()),
+			err.Error(),
+		)
+	}
 }
 
 func (r *userPasswordResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {

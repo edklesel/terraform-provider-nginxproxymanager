@@ -232,6 +232,11 @@ func (r *deadHostResource) Read(ctx context.Context, req resource.ReadRequest, r
 	}
 
 	deadHost, err := r.client.DeadHosts.Get(id)
+	if sdk.IsNotFound(err) {
+		// Deleted outside Terraform, so plan to create it again
+		resp.State.RemoveResource(ctx)
+		return
+	}
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("Unable to read dead host with ID %s.", state.ID.ValueString()),
@@ -342,7 +347,7 @@ func (r *deadHostResource) Delete(ctx context.Context, req resource.DeleteReques
 	}
 
 	err = r.client.DeadHosts.Delete(id)
-	if err != nil {
+	if err != nil && !sdk.IsNotFound(err) {
 		resp.Diagnostics.AddError(
 			"Error deleting dead host",
 			fmt.Sprintf("Unable to delete dead host, unexpected error: %s", err.Error()),
