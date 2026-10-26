@@ -105,23 +105,23 @@ func (r *letsencryptCertificateResource) Schema(_ context.Context, _ resource.Sc
 			"dns_provider_credentials": schema.StringAttribute{
 				Optional:    true,
 				Sensitive:   true,
-				Description: "Credentials for the provided DNS provider. Consult the Nginx Proxy Manager UI for the format for your provider.",
+				Description: "Credentials for the provided DNS provider. Consult the Nginx Proxy Manager UI for the format for your provider. NPM doesn't return these, so they aren't checked for changes made outside Terraform.",
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					requiresReplaceIfKnown,
 				},
 			},
 			"letsencrypt_email": schema.StringAttribute{
-				Required:    true,
-				Description: "Email address to use for the Letsencrypt certificate.",
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
-				},
+				Optional:           true,
+				Description:        "Not used. Since NPM 2.13 the email address of the user that owns the certificate is used.",
+				DeprecationMessage: "NPM ignores this since version 2.13 and uses the email address of the user that owns the certificate. Remove it from your configuration.",
 			},
 			"propagation_seconds": schema.Int64Attribute{
 				Optional:    true,
+				Computed:    true,
 				Description: "Number of seconds to wait for the DNS challenge to propagate. Defaults to the provider default if left empty.",
 				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.RequiresReplace(),
+					int64planmodifier.UseStateForUnknown(),
+					int64planmodifier.RequiresReplaceIfConfigured(),
 				},
 			},
 			"nice_name": schema.StringAttribute{
@@ -194,7 +194,7 @@ func (r *letsencryptCertificateResource) Create(ctx context.Context, req resourc
 
 	}
 
-	if !plan.PropagationSeconds.IsNull() {
+	if !plan.PropagationSeconds.IsNull() && !plan.PropagationSeconds.IsUnknown() {
 		_certificate.Meta.PropagationSeconds = utils.ReturnPointer(int(plan.PropagationSeconds.ValueInt64()))
 	}
 
@@ -213,8 +213,7 @@ func (r *letsencryptCertificateResource) Create(ctx context.Context, req resourc
 
 	plan.ID = types.StringValue(strconv.Itoa(certificate.ID))
 	plan.NiceName = types.StringValue(*certificate.NiceName)
-	plan.DNSChallenge = types.BoolValue(*certificate.Meta.DNSChallenge)
-	plan.DNSProvider = types.StringValue(*certificate.Meta.DNSProvider)
+	plan.DNSChallenge, plan.DNSProvider, plan.PropagationSeconds = certificateMetaValues(certificate.Meta)
 
 	// The DNS provider credentials are only returned from the API in <2.13.0
 	if utils.CheckAttribute(r.client, &utils.ReturnDNSProviderCredentials) {
@@ -231,10 +230,6 @@ func (r *letsencryptCertificateResource) Create(ctx context.Context, req resourc
 	// plan.Issuer = types.StringValue(*certificate.Meta.LetsencryptCertificate.Issuer)
 	// plan.From = types.Int64Value(int64(*certificate.Meta.LetsencryptCertificate.Dates.From))
 	// plan.To = types.Int64Value(int64(*certificate.Meta.LetsencryptCertificate.Dates.To))
-
-	if certificate.Meta.PropagationSeconds != nil {
-		plan.PropagationSeconds = types.Int64Value(int64(*certificate.Meta.PropagationSeconds))
-	}
 
 	plan.DomainNames = []types.String{}
 	for _, domainName := range *certificate.DomainNames {
@@ -276,9 +271,7 @@ func (r *letsencryptCertificateResource) Read(ctx context.Context, req resource.
 	}
 
 	state.NiceName = types.StringValue(*certificate.NiceName)
-	state.DNSChallenge = types.BoolValue(*certificate.Meta.DNSChallenge)
-	state.DNSProvider = types.StringValue(*certificate.Meta.DNSProvider)
-	state.PropagationSeconds = types.Int64Value(int64(*certificate.Meta.PropagationSeconds))
+	state.DNSChallenge, state.DNSProvider, state.PropagationSeconds = certificateMetaValues(certificate.Meta)
 
 	if utils.CheckAttribute(r.client, &utils.FieldLetsencryptEmail) {
 		state.LetsencryptEmail = types.StringValue(*certificate.Meta.LetsencryptEmail)
@@ -307,10 +300,48 @@ func (r *letsencryptCertificateResource) Read(ctx context.Context, req resource.
 	}
 }
 
-// The update function doesn't do anything as all attributes require replacement
-// but is implements to fit the interface requirements.
+// Certificates can't be changed in NPM, so everything that matters requires
+// replacement. What's left to update are the values NPM doesn't return, e.g
+// the credentials after an import, which are only kept in state.
 func (r *letsencryptCertificateResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan models.LetsencryptCertificateModel
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	resp.Diagnostics.Append(resp.State.Set(ctx, plan)...)
 }
+
+// certificateMetaValues reads the DNS challenge settings from a certificate's
+// meta. NPM leaves out the ones it has no value for, e.g on a certificate
+// that uses an HTTP challenge.
+func certificateMetaValues(meta *sdk.CertificateMeta) (dnsChallenge types.Bool, dnsProvider types.String, propagationSeconds types.Int64) {
+	dnsChallenge, dnsProvider, propagationSeconds = types.BoolValue(false), types.StringNull(), types.Int64Null()
+	if meta == nil {
+		return
+	}
+	if meta.DNSChallenge != nil {
+		dnsChallenge = types.BoolValue(*meta.DNSChallenge)
+	}
+	if meta.DNSProvider != nil && *meta.DNSProvider != "" {
+		dnsProvider = types.StringValue(*meta.DNSProvider)
+	}
+	if meta.PropagationSeconds != nil {
+		propagationSeconds = types.Int64Value(int64(*meta.PropagationSeconds))
+	}
+	return
+}
+
+// NPM doesn't return the DNS provider credentials, so they're unknown after
+// an import. Setting them in the config then must not replace the
+// certificate, only a change to credentials that were already known.
+var requiresReplaceIfKnown = stringplanmodifier.RequiresReplaceIf(
+	func(_ context.Context, req planmodifier.StringRequest, resp *stringplanmodifier.RequiresReplaceIfFuncResponse) {
+		resp.RequiresReplace = !req.StateValue.IsNull()
+	},
+	"Changing the value replaces the certificate, unless it wasn't known yet, e.g after an import.",
+	"Changing the value replaces the certificate, unless it wasn't known yet, e.g after an import.",
+)
 
 func (r *letsencryptCertificateResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 
