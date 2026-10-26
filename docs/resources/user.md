@@ -26,7 +26,7 @@ resource "nginxproxymanager_user" "user" {
 
 ### Required
 
-- `email` (String) Email of the user, used for logging in.
+- `email` (String) Email of the user, used for logging in. Must be lowercase, as NPM lowercases it when updating a user.
 - `name` (String) Username of the user.
 - `nickname` (String) Nickname for the user.
 
