@@ -38,7 +38,7 @@ resource "nginxproxymanager_letsencrypt_certificate" "test" {
 
 ### Optional
 
-- `dns_provider` (String) Which DNS provider to use for the DNS challenge. Must be set if `dns_challenge` it `true`.
+- `dns_provider` (String) Which DNS provider to use for the DNS challenge, one of the IDs NPM lists in `GET /api/nginx/certificates/dns-providers`. Must be set if `dns_challenge` is `true`.
 - `dns_provider_credentials` (String, Sensitive) Credentials for the provided DNS provider. Consult the Nginx Proxy Manager UI for the format for your provider.
 - `propagation_seconds` (Number) Number of seconds to wait for the DNS challenge to propagate. Defaults to the provider default if left empty.
 
