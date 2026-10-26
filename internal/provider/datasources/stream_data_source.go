@@ -60,6 +60,10 @@ func (r *streamDataSource) Schema(_ context.Context, _ datasource.SchemaRequest,
 				Computed:    true,
 				Description: "Whether UDP Forwarding is enabled.",
 			},
+			"enabled": schema.BoolAttribute{
+				Computed:    true,
+				Description: "Whether the stream is enabled.",
+			},
 			"owner_user_id": schema.Int64Attribute{
 				Computed:    true,
 				Description: "ID of the user who owns the stream.",
@@ -102,6 +106,7 @@ func (r *streamDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	state.IncomingPort = types.Int64Value(int64(*stream.IncomingPort))
 	state.TCPForwarding = types.BoolValue(*stream.TCPForwarding)
 	state.UDPForwarding = types.BoolValue(*stream.UDPForwarding)
+	state.Enabled = types.BoolValue(stream.Enabled != nil && *stream.Enabled)
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)

@@ -233,7 +233,10 @@ func (r *redirectionHostResource) Create(ctx context.Context, req resource.Creat
 	plan.AdvancedConfig = types.StringValue(*redirectionHost.AdvancedConfig)
 	plan.BlockExploits = types.BoolValue(*redirectionHost.BlockExploits)
 	plan.HTTP2Support = types.BoolValue(*redirectionHost.HTTP2Support)
-	plan.Enabled = types.BoolValue(*redirectionHost.Enabled)
+	plan.Enabled, err = applyEnabled(r.client.RedirectionHosts, redirectionHost.ID, redirectionHost.Enabled, plan.Enabled)
+	if err != nil {
+		resp.Diagnostics.AddError("Error enabling or disabling redirection host.", err.Error())
+	}
 	plan.HSTSEnabled = types.BoolValue(*redirectionHost.HSTSEnabled)
 	plan.HSTSSubdomains = types.BoolValue(*redirectionHost.HSTSSubdomains)
 	plan.PreservePath = types.BoolValue(*redirectionHost.PreservePath)
@@ -358,7 +361,10 @@ func (r *redirectionHostResource) Update(ctx context.Context, req resource.Updat
 	plan.AdvancedConfig = types.StringValue(*redirectionHost.AdvancedConfig)
 	plan.BlockExploits = types.BoolValue(*redirectionHost.BlockExploits)
 	plan.HTTP2Support = types.BoolValue(*redirectionHost.HTTP2Support)
-	plan.Enabled = types.BoolValue(*redirectionHost.Enabled)
+	plan.Enabled, err = applyEnabled(r.client.RedirectionHosts, id, redirectionHost.Enabled, plan.Enabled)
+	if err != nil {
+		resp.Diagnostics.AddError("Error enabling or disabling redirection host.", err.Error())
+	}
 	plan.HSTSEnabled = types.BoolValue(*redirectionHost.HSTSEnabled)
 	plan.HSTSSubdomains = types.BoolValue(*redirectionHost.HSTSSubdomains)
 	plan.PreservePath = types.BoolValue(*redirectionHost.PreservePath)

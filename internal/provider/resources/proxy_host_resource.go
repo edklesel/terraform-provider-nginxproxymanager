@@ -284,7 +284,10 @@ func (r *proxyHostResource) Create(ctx context.Context, req resource.CreateReque
 	plan.BlockExploits = types.BoolValue(*proxyHost.BlockExploits)
 	plan.AllowWebsocketUpgrade = types.BoolValue(*proxyHost.AllowWebsocketUpgrade)
 	plan.HTTP2Support = types.BoolValue(*proxyHost.HTTP2Support)
-	plan.Enabled = types.BoolValue(*proxyHost.Enabled)
+	plan.Enabled, err = applyEnabled(r.client.ProxyHosts, proxyHost.ID, proxyHost.Enabled, plan.Enabled)
+	if err != nil {
+		resp.Diagnostics.AddError("Error enabling or disabling proxy host.", err.Error())
+	}
 	plan.Locations = []models.ProxyHostLocationModel{}
 	plan.HSTSEnabled = types.BoolValue(*proxyHost.HSTSEnabled)
 	plan.HSTSSubdomains = types.BoolValue(*proxyHost.HSTSSubdomains)
@@ -448,7 +451,10 @@ func (r *proxyHostResource) Update(ctx context.Context, req resource.UpdateReque
 	plan.BlockExploits = types.BoolValue(*proxyHost.BlockExploits)
 	plan.AllowWebsocketUpgrade = types.BoolValue(*proxyHost.AllowWebsocketUpgrade)
 	plan.HTTP2Support = types.BoolValue(*proxyHost.HTTP2Support)
-	plan.Enabled = types.BoolValue(*proxyHost.Enabled)
+	plan.Enabled, err = applyEnabled(r.client.ProxyHosts, id, proxyHost.Enabled, plan.Enabled)
+	if err != nil {
+		resp.Diagnostics.AddError("Error enabling or disabling proxy host.", err.Error())
+	}
 	plan.Locations = []models.ProxyHostLocationModel{}
 	plan.HSTSEnabled = types.BoolValue(*proxyHost.HSTSEnabled)
 	plan.HSTSSubdomains = types.BoolValue(*proxyHost.HSTSSubdomains)

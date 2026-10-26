@@ -200,7 +200,10 @@ func (r *deadHostResource) Create(ctx context.Context, req resource.CreateReques
 	plan.HTTP2Support = types.BoolValue(*deadHost.HTTP2Support)
 	plan.HSTSEnabled = types.BoolValue(*deadHost.HSTSEnabled)
 	plan.HSTSSubdomains = types.BoolValue(*deadHost.HSTSSubdomains)
-	plan.Enabled = types.BoolValue(*deadHost.Enabled)
+	plan.Enabled, err = applyEnabled(r.client.DeadHosts, deadHost.ID, deadHost.Enabled, plan.Enabled)
+	if err != nil {
+		resp.Diagnostics.AddError("Error enabling or disabling dead host.", err.Error())
+	}
 
 	for _, domainName := range *deadHost.DomainNames {
 		plan.DomainNames = append(plan.DomainNames, types.StringValue(domainName))
@@ -310,7 +313,10 @@ func (r *deadHostResource) Update(ctx context.Context, req resource.UpdateReques
 	plan.HTTP2Support = types.BoolValue(*deadHost.HTTP2Support)
 	plan.HSTSEnabled = types.BoolValue(*deadHost.HSTSEnabled)
 	plan.HSTSSubdomains = types.BoolValue(*deadHost.HSTSSubdomains)
-	plan.Enabled = types.BoolValue(*deadHost.Enabled)
+	plan.Enabled, err = applyEnabled(r.client.DeadHosts, id, deadHost.Enabled, plan.Enabled)
+	if err != nil {
+		resp.Diagnostics.AddError("Error enabling or disabling dead host.", err.Error())
+	}
 
 	for _, domainName := range *deadHost.DomainNames {
 		plan.DomainNames = append(plan.DomainNames, types.StringValue(domainName))
