@@ -93,9 +93,11 @@ resource "nginxproxymanager_dead_host" "test" {
 
   certificate_id = nginxproxymanager_custom_certificate.dead_host_%d.id
   ssl_forced     = true
+  enabled        = false
 }`, id, id, id, id),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("nginxproxymanager_dead_host.test", "ssl_forced", "true"),
+					resource.TestCheckResourceAttr("nginxproxymanager_dead_host.test", "enabled", "false"),
 					resource.TestCheckResourceAttr("nginxproxymanager_dead_host.test", "domain_names.#", "3"),
 					resource.TestCheckResourceAttr("nginxproxymanager_dead_host.test", "domain_names.0", fmt.Sprintf("domain2_%d.com", id)),
 					resource.TestCheckResourceAttr("nginxproxymanager_dead_host.test", "domain_names.1", fmt.Sprintf("domain3_%d.com", id)),
