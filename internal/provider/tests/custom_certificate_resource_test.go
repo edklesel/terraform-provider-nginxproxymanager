@@ -54,6 +54,18 @@ func TestAccCustomCertificateResource(t *testing.T) {
 	`, base64.StdEncoding.EncodeToString([]byte(cert2)), base64.StdEncoding.EncodeToString([]byte(key2))),
 				Check: resource.TestCheckResourceAttr("nginxproxymanager_custom_certificate.no_name", "nice_name", ""),
 			},
+			// Deleting the custom certificate outside Terraform, e.g in the UI, makes
+			// Terraform plan to create it again instead of failing
+			{
+				Config: config + fmt.Sprintf(`
+	resource "nginxproxymanager_custom_certificate" "no_name" {
+	  certificate     = base64decode("%s")
+	  certificate_key = base64decode("%s")
+	}
+	`, base64.StdEncoding.EncodeToString([]byte(cert2)), base64.StdEncoding.EncodeToString([]byte(key2))),
+				Check:              deleteInNPM("nginxproxymanager_custom_certificate.test", func(c *sdk.Client, id int) error { return c.Certificates.Delete(id) }),
+				ExpectNonEmptyPlan: true,
+			},
 		},
 	})
 }

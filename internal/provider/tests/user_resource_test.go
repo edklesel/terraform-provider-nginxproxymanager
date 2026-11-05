@@ -6,6 +6,8 @@ package tests
 import (
 	"testing"
 
+	sdk "github.com/edklesel/terraform-provider-nginxproxymanager/internal/sdk"
+
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
@@ -49,6 +51,20 @@ resource "nginxproxymanager_user" "test" {
 					resource.TestCheckResourceAttr("nginxproxymanager_user.test", "email", "test_updated@example.com"),
 					resource.TestCheckResourceAttr("nginxproxymanager_user.test", "roles.0", "admin"),
 				),
+			},
+			// Deleting the user outside Terraform, e.g in the UI, makes
+			// Terraform plan to create it again instead of failing
+			{
+				Config: providerConfig + `
+resource "nginxproxymanager_user" "test" {
+  name     = "test_name_updated"
+  nickname = "test_nickname_updated"
+  email    = "test_updated@example.com"
+  roles    = ["admin"]
+}
+`,
+				Check:              deleteInNPM("nginxproxymanager_user.test", func(c *sdk.Client, id int) error { return c.Users.Delete(id) }),
+				ExpectNonEmptyPlan: true,
 			},
 		},
 	})

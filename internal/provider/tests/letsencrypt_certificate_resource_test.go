@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"testing"
 
+	sdk "github.com/edklesel/terraform-provider-nginxproxymanager/internal/sdk"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
@@ -55,6 +56,22 @@ func TestAccLetsencryptCertificateResource(t *testing.T) {
 					"dns_provider_credentials",
 					"letsencrypt_email",
 				},
+			},
+			// Deleting the letsencrypt certificate outside Terraform, e.g in the UI, makes
+			// Terraform plan to create it again instead of failing
+			{
+				Config: providerConfig + fmt.Sprintf(`
+	resource "nginxproxymanager_letsencrypt_certificate" "test" {
+	  domain_names = ["www.example.com", "2.example.com"]
+	  dns_challenge = true
+	  dns_provider = "powerdns"
+	  dns_provider_credentials = base64decode("%s")
+	  letsencrypt_email = "test@test.com"
+	  propagation_seconds = 5
+	}
+`, base64.StdEncoding.EncodeToString([]byte(credentials))),
+				Check:              deleteInNPM("nginxproxymanager_letsencrypt_certificate.test", func(c *sdk.Client, id int) error { return c.Certificates.Delete(id) }),
+				ExpectNonEmptyPlan: true,
 			},
 		},
 	})
