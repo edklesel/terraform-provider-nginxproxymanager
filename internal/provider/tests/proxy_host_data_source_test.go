@@ -31,6 +31,13 @@ resource "nginxproxymanager_proxy_host" "test" {
   
   block_exploits          = true
   allow_websocket_upgrade = false
+
+  location {
+    path           = "/api"
+    forward_scheme = "http"
+    forward_host   = "10.0.0.11"
+    forward_port   = 9000
+  }
 }
 
 data "nginxproxymanager_proxy_host" "test" {
@@ -46,6 +53,9 @@ data "nginxproxymanager_proxy_host" "test" {
 					resource.TestCheckResourceAttr("data.nginxproxymanager_proxy_host.test", "domain_names.1", fmt.Sprintf("domain2_%d.com", id)),
 					resource.TestCheckResourceAttr("data.nginxproxymanager_proxy_host.test", "block_exploits", "true"),
 					resource.TestCheckResourceAttr("data.nginxproxymanager_proxy_host.test", "allow_websocket_upgrade", "false"),
+					resource.TestCheckResourceAttr("data.nginxproxymanager_proxy_host.test", "location.#", "1"),
+					resource.TestCheckResourceAttr("data.nginxproxymanager_proxy_host.test", "location.0.path", "/api"),
+					resource.TestCheckResourceAttr("data.nginxproxymanager_proxy_host.test", "location.0.forward_host", "10.0.0.11"),
 				),
 			},
 		},

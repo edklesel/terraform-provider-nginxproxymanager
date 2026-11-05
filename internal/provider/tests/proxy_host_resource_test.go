@@ -33,10 +33,27 @@ resource "nginxproxymanager_proxy_host" "test" {
   block_exploits          = true
   allow_websocket_upgrade = false
 
+  location {
+    path           = "/api"
+    forward_scheme = "http"
+    forward_host   = "10.0.0.11"
+    forward_port   = 9000
+  }
+
+  location {
+    path           = "/static"
+    forward_scheme = "https"
+    forward_host   = "10.0.0.12"
+    forward_port   = 443
+  }
 }
 `, id, id, id),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet("nginxproxymanager_proxy_host.test", "id"),
+					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "location.#", "2"),
+					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "location.0.path", "/api"),
+					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "location.0.forward_port", "9000"),
+					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "location.1.forward_host", "10.0.0.12"),
 					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "forward_host", fmt.Sprintf("test_%d.com", id)),
 					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "forward_port", "8080"),
 					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "forward_scheme", "https"),
@@ -119,9 +136,16 @@ resource "nginxproxymanager_proxy_host" "test" {
   allow_websocket_upgrade = true
   caching_enabled         = true
 
-
+  location {
+    path           = "/api"
+    forward_scheme = "http"
+    forward_host   = "10.0.0.11"
+    forward_port   = 9001
+  }
 }`, id, id, id, id),
 				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "location.#", "1"),
+					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "location.0.forward_port", "9001"),
 					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "forward_host", fmt.Sprintf("test123_%d.com", id)),
 					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "forward_port", "8081"),
 					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "forward_scheme", "https"),
