@@ -215,6 +215,21 @@ resource "nginxproxymanager_access_list" "test" {
 					resource.TestCheckResourceAttr("nginxproxymanager_access_list.test", "client.#", "1"),
 				),
 			},
+			// Deleting the access list outside Terraform, e.g in the UI, makes
+			// Terraform plan to create it again instead of failing
+			{
+				Config: providerConfig + fmt.Sprintf(`
+resource "nginxproxymanager_access_list" "test" {
+  name = "%s"
+
+  client {
+    address = "1.2.3.4"
+	directive = "allow"
+  }
+}`, name) + imported,
+				Check:              deleteInNPM("nginxproxymanager_access_list.test", func(c *sdk.Client, id int) error { return c.AccessLists.Delete(id) }),
+				ExpectNonEmptyPlan: true,
+			},
 		},
 	})
 }

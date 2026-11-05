@@ -9,6 +9,8 @@ import (
 	"regexp"
 	"testing"
 
+	sdk "github.com/edklesel/terraform-provider-nginxproxymanager/internal/sdk"
+
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
@@ -103,6 +105,24 @@ resource "nginxproxymanager_dead_host" "test" {
 					resource.TestCheckResourceAttr("nginxproxymanager_dead_host.test", "domain_names.1", fmt.Sprintf("domain3_%d.com", id)),
 					resource.TestCheckResourceAttr("nginxproxymanager_dead_host.test", "domain_names.2", fmt.Sprintf("domain4_%d.com", id)),
 				),
+			},
+			// Deleting the dead host outside Terraform, e.g in the UI, makes
+			// Terraform plan to create it again instead of failing
+			{
+				Config: providerConfig + certificate + fmt.Sprintf(`
+resource "nginxproxymanager_dead_host" "test" {
+  domain_names = [
+	"domain2_%d.com",
+	"domain3_%d.com",
+	"domain4_%d.com",
+  ]
+
+  certificate_id = nginxproxymanager_custom_certificate.dead_host_%d.id
+  ssl_forced     = true
+  enabled        = false
+}`, id, id, id, id),
+				Check:              deleteInNPM("nginxproxymanager_dead_host.test", func(c *sdk.Client, id int) error { return c.DeadHosts.Delete(id) }),
+				ExpectNonEmptyPlan: true,
 			},
 		},
 	})
