@@ -22,17 +22,18 @@ func TestAccDeadHostResource(t *testing.T) {
 			{
 				Config: providerConfig + fmt.Sprintf(`
 resource "nginxproxymanager_dead_host" "test" {
+  # Not in the sorted order NPM stores them in
   domain_names = [
-	"domain1_%d.com",
 	"domain2_%d.com",
+	"domain1_%d.com",
   ]
 }
 `, id, id),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet("nginxproxymanager_dead_host.test", "id"),
 					resource.TestCheckResourceAttr("nginxproxymanager_dead_host.test", "domain_names.#", "2"),
-					resource.TestCheckResourceAttr("nginxproxymanager_dead_host.test", "domain_names.0", fmt.Sprintf("domain1_%d.com", id)),
-					resource.TestCheckResourceAttr("nginxproxymanager_dead_host.test", "domain_names.1", fmt.Sprintf("domain2_%d.com", id)),
+					resource.TestCheckTypeSetElemAttr("nginxproxymanager_dead_host.test", "domain_names.*", fmt.Sprintf("domain1_%d.com", id)),
+					resource.TestCheckTypeSetElemAttr("nginxproxymanager_dead_host.test", "domain_names.*", fmt.Sprintf("domain2_%d.com", id)),
 				),
 			},
 			{

@@ -32,7 +32,7 @@ func TestAccLetsencryptCertificateResource(t *testing.T) {
 			{
 				Config: providerConfig + fmt.Sprintf(`
 	resource "nginxproxymanager_letsencrypt_certificate" "test" {
-	  domain_names = ["www.example.com"]
+	  domain_names = ["www.example.com", "2.example.com"]
 	  dns_challenge = true
 	  dns_provider = "powerdns"
 	  dns_provider_credentials = base64decode("%s")
@@ -43,7 +43,8 @@ func TestAccLetsencryptCertificateResource(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("nginxproxymanager_letsencrypt_certificate.test", "dns_provider", "powerdns"),
 					resource.TestCheckResourceAttr("nginxproxymanager_letsencrypt_certificate.test", "dns_challenge", "true"),
-					resource.TestCheckResourceAttr("nginxproxymanager_letsencrypt_certificate.test", "domain_names.#", "1"),
+					resource.TestCheckResourceAttr("nginxproxymanager_letsencrypt_certificate.test", "domain_names.#", "2"),
+					resource.TestCheckTypeSetElemAttr("nginxproxymanager_letsencrypt_certificate.test", "domain_names.*", "2.example.com"),
 				),
 			},
 			{
