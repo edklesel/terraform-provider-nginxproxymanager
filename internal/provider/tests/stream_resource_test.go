@@ -33,6 +33,7 @@ resource "nginxproxymanager_stream" "test" {
 					resource.TestCheckResourceAttr("nginxproxymanager_stream.test", "incoming_port", fmt.Sprintf("%d", id+1)),
 					resource.TestCheckResourceAttr("nginxproxymanager_stream.test", "tcp_forwarding", "true"),
 					resource.TestCheckResourceAttr("nginxproxymanager_stream.test", "udp_forwarding", "false"),
+					resource.TestCheckResourceAttr("nginxproxymanager_stream.test", "enabled", "true"),
 				),
 			},
 			{
@@ -49,10 +50,10 @@ resource "nginxproxymanager_stream" "test" {
   
   tcp_forwarding  = false
   udp_forwarding = true
-
-
+  enabled        = false
 }`, id, id+1, id),
 				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("nginxproxymanager_stream.test", "enabled", "false"),
 					resource.TestCheckResourceAttr("nginxproxymanager_stream.test", "forwarding_host", fmt.Sprintf("test_%d.com", id)),
 					resource.TestCheckResourceAttr("nginxproxymanager_stream.test", "forwarding_port", fmt.Sprintf("%d", id+1)),
 					resource.TestCheckResourceAttr("nginxproxymanager_stream.test", "incoming_port", fmt.Sprintf("%d", id)),

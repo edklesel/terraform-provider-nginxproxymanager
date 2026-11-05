@@ -114,9 +114,10 @@ resource "nginxproxymanager_redirection_host" "test" {
   ]
 
   preserve_path = true
-
+  enabled       = false
 }`, id, id, id, id),
 				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("nginxproxymanager_redirection_host.test", "enabled", "false"),
 					resource.TestCheckResourceAttr("nginxproxymanager_redirection_host.test", "forward_domain_name", fmt.Sprintf("test123_%d.com", id)),
 					resource.TestCheckResourceAttr("nginxproxymanager_redirection_host.test", "forward_http_code", "302"),
 					resource.TestCheckResourceAttr("nginxproxymanager_redirection_host.test", "domain_names.#", "3"),

@@ -89,9 +89,11 @@ resource "nginxproxymanager_dead_host" "test" {
 	"domain3_%d.com",
 	"domain4_%d.com",
   ]
-  
+
+  enabled = false
 }`, id, id, id),
 				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("nginxproxymanager_dead_host.test", "enabled", "false"),
 					resource.TestCheckResourceAttr("nginxproxymanager_dead_host.test", "domain_names.#", "3"),
 					resource.TestCheckResourceAttr("nginxproxymanager_dead_host.test", "domain_names.0", fmt.Sprintf("domain2_%d.com", id)),
 					resource.TestCheckResourceAttr("nginxproxymanager_dead_host.test", "domain_names.1", fmt.Sprintf("domain3_%d.com", id)),
