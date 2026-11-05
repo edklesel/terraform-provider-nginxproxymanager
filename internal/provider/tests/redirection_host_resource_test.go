@@ -15,6 +15,7 @@ import (
 func TestAccRedirectionHostResource(t *testing.T) {
 
 	var id = rand.IntN(1e4)
+	certificate := customCertificateConfig(fmt.Sprintf("redirection_host_%d", id))
 
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -102,7 +103,7 @@ resource "nginxproxymanager_redirection_host" "test" {
 				ExpectError: regexp.MustCompile("hsts_subdomains cannot be true when hsts_enabled is false"),
 			},
 			{
-				Config: providerConfig + fmt.Sprintf(`
+				Config: providerConfig + certificate + fmt.Sprintf(`
 resource "nginxproxymanager_redirection_host" "test" {
   forward_domain_name = "test123_%d.com"
   forward_http_code = 302
@@ -115,8 +116,11 @@ resource "nginxproxymanager_redirection_host" "test" {
 
   preserve_path = true
 
-}`, id, id, id, id),
+  certificate_id = nginxproxymanager_custom_certificate.redirection_host_%d.id
+  ssl_forced     = true
+}`, id, id, id, id, id),
 				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("nginxproxymanager_redirection_host.test", "ssl_forced", "true"),
 					resource.TestCheckResourceAttr("nginxproxymanager_redirection_host.test", "forward_domain_name", fmt.Sprintf("test123_%d.com", id)),
 					resource.TestCheckResourceAttr("nginxproxymanager_redirection_host.test", "forward_http_code", "302"),
 					resource.TestCheckResourceAttr("nginxproxymanager_redirection_host.test", "domain_names.#", "3"),
