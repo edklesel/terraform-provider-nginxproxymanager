@@ -12,6 +12,8 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 )
 
 var (
@@ -37,6 +39,9 @@ func (r *userPasswordResource) Schema(_ context.Context, _ resource.SchemaReques
 			"user_id": schema.Int64Attribute{
 				Required:    true,
 				Description: "ID of the user (required).",
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.RequiresReplace(),
+				},
 			},
 			"password": schema.StringAttribute{
 				Required:    true,
@@ -130,7 +135,4 @@ func (r *userPasswordResource) Delete(ctx context.Context, req resource.DeleteRe
 
 func (r *userPasswordResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	r.client = configureProvider(req, resp)
-}
-
-func (r *userPasswordResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 }
