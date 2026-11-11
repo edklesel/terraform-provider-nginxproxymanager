@@ -29,6 +29,33 @@ func TestAccLetsencryptCertificateResource(t *testing.T) {
 `,
 				ExpectError: regexp.MustCompile("Attribute 'dns_provider(|_credentials)' must be set when 'dns_challenge' is"),
 			},
+			// The DNS provider is checked against the providers NPM supports
+			{
+				Config: providerConfig + `
+	resource "nginxproxymanager_letsencrypt_certificate" "test" {
+	  domain_names = ["www.example.com"]
+	  letsencrypt_email = "test@test.com"
+	  dns_challenge = true
+	  dns_provider = "hetzner"
+	  dns_provider_credentials = "dns_hetzner_api_token = abc"
+	}
+`,
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: true,
+			},
+			{
+				Config: providerConfig + `
+	resource "nginxproxymanager_letsencrypt_certificate" "test" {
+	  domain_names = ["www.example.com"]
+	  letsencrypt_email = "test@test.com"
+	  dns_challenge = true
+	  dns_provider = "not-a-dns-provider"
+	  dns_provider_credentials = "dns_example_token = abc"
+	}
+`,
+				PlanOnly:    true,
+				ExpectError: regexp.MustCompile(`doesn't support the DNS provider "not-a-dns-provider"`),
+			},
 			{
 				Config: providerConfig + fmt.Sprintf(`
 	resource "nginxproxymanager_letsencrypt_certificate" "test" {
