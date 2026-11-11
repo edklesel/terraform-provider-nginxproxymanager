@@ -34,12 +34,12 @@ resource "nginxproxymanager_letsencrypt_certificate" "test" {
 
 - `dns_challenge` (Boolean) Whether or not to use a DNS challenge for this Letsencrypt certificate.
 - `domain_names` (Set of String) Domain names for the certificate. NPM stores these sorted, so the order doesn't matter.
-- `letsencrypt_email` (String) Email address to use for the Letsencrypt certificate.
 
 ### Optional
 
 - `dns_provider` (String) Which DNS provider to use for the DNS challenge. Must be set if `dns_challenge` it `true`.
-- `dns_provider_credentials` (String, Sensitive) Credentials for the provided DNS provider. Consult the Nginx Proxy Manager UI for the format for your provider.
+- `dns_provider_credentials` (String, Sensitive) Credentials for the provided DNS provider. Consult the Nginx Proxy Manager UI for the format for your provider. NPM doesn't return these, so they aren't checked for changes made outside Terraform.
+- `letsencrypt_email` (String, Deprecated) Not used. Since NPM 2.13 the email address of the user that owns the certificate is used.
 - `propagation_seconds` (Number) Number of seconds to wait for the DNS challenge to propagate. Defaults to the provider default if left empty.
 
 ### Read-Only
