@@ -25,9 +25,10 @@ resource "nginxproxymanager_redirection_host" "test" {
   forward_domain_name = "test_%d.com"
   forward_http_code = 301
   forward_scheme = "https"
+  # Not in the sorted order NPM stores them in
   domain_names = [
-	"domain1_%d.com",
 	"domain2_%d.com",
+	"domain1_%d.com",
   ]
 
   preserve_path = false
@@ -38,8 +39,8 @@ resource "nginxproxymanager_redirection_host" "test" {
 					resource.TestCheckResourceAttr("nginxproxymanager_redirection_host.test", "forward_domain_name", fmt.Sprintf("test_%d.com", id)),
 					resource.TestCheckResourceAttr("nginxproxymanager_redirection_host.test", "forward_http_code", "301"),
 					resource.TestCheckResourceAttr("nginxproxymanager_redirection_host.test", "domain_names.#", "2"),
-					resource.TestCheckResourceAttr("nginxproxymanager_redirection_host.test", "domain_names.0", fmt.Sprintf("domain1_%d.com", id)),
-					resource.TestCheckResourceAttr("nginxproxymanager_redirection_host.test", "domain_names.1", fmt.Sprintf("domain2_%d.com", id)),
+					resource.TestCheckTypeSetElemAttr("nginxproxymanager_redirection_host.test", "domain_names.*", fmt.Sprintf("domain1_%d.com", id)),
+					resource.TestCheckTypeSetElemAttr("nginxproxymanager_redirection_host.test", "domain_names.*", fmt.Sprintf("domain2_%d.com", id)),
 					resource.TestCheckResourceAttr("nginxproxymanager_redirection_host.test", "preserve_path", "false"),
 				),
 			},

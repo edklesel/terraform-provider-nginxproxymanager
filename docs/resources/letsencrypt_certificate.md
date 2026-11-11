@@ -33,7 +33,7 @@ resource "nginxproxymanager_letsencrypt_certificate" "test" {
 ### Required
 
 - `dns_challenge` (Boolean) Whether or not to use a DNS challenge for this Letsencrypt certificate.
-- `domain_names` (List of String) Domain names for the certificate.
+- `domain_names` (Set of String) Domain names for the certificate. NPM stores these sorted, so the order doesn't matter.
 - `letsencrypt_email` (String) Email address to use for the Letsencrypt certificate.
 
 ### Optional

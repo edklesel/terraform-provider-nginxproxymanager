@@ -12,7 +12,7 @@ import (
 	sdk "github.com/edklesel/terraform-provider-nginxproxymanager/internal/sdk"
 	utils "github.com/edklesel/terraform-provider-nginxproxymanager/internal/utils"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -54,12 +54,12 @@ func (r *deadHostResource) Schema(_ context.Context, _ resource.SchemaRequest, r
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"domain_names": schema.ListAttribute{
+			"domain_names": schema.SetAttribute{
 				Required:    true,
-				Description: "Domain names to accept.",
+				Description: "Domain names to accept. NPM stores these sorted, so the order doesn't matter.",
 				ElementType: types.StringType,
-				Validators: []validator.List{
-					listvalidator.SizeAtLeast(1),
+				Validators: []validator.Set{
+					setvalidator.SizeAtLeast(1),
 				},
 			},
 			"certificate_id": schema.Int64Attribute{

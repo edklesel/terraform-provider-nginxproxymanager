@@ -29,7 +29,7 @@ resource "nginxproxymanager_redirection_host" "test" {
 
 ### Required
 
-- `domain_names` (List of String) Domain names to accept.
+- `domain_names` (Set of String) Domain names to accept. NPM stores these sorted, so the order doesn't matter.
 - `forward_domain_name` (String) Domain name to redirect the request to.
 - `forward_http_code` (Number) HTTP code to redirect with.
 - `forward_scheme` (String) Scheme to use when forwarding.

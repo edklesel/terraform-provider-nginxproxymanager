@@ -25,9 +25,10 @@ resource "nginxproxymanager_proxy_host" "test" {
   forward_host = "test_%d.com"
   forward_port = 8080
   forward_scheme = "https"
+  # Not in the sorted order NPM stores them in
   domain_names = [
-	"domain1_%d.com",
 	"domain2_%d.com",
+	"domain1_%d.com",
   ]
   
   block_exploits          = true
@@ -58,8 +59,8 @@ resource "nginxproxymanager_proxy_host" "test" {
 					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "forward_port", "8080"),
 					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "forward_scheme", "https"),
 					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "domain_names.#", "2"),
-					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "domain_names.0", fmt.Sprintf("domain1_%d.com", id)),
-					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "domain_names.1", fmt.Sprintf("domain2_%d.com", id)),
+					resource.TestCheckTypeSetElemAttr("nginxproxymanager_proxy_host.test", "domain_names.*", fmt.Sprintf("domain1_%d.com", id)),
+					resource.TestCheckTypeSetElemAttr("nginxproxymanager_proxy_host.test", "domain_names.*", fmt.Sprintf("domain2_%d.com", id)),
 					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "block_exploits", "true"),
 					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "allow_websocket_upgrade", "false"),
 				),

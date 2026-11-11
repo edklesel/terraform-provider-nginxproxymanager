@@ -26,7 +26,7 @@ resource "nginxproxymanager_proxy_host" "test" {
 
 ### Required
 
-- `domain_names` (List of String) Domain names to accept.
+- `domain_names` (Set of String) Domain names to accept. NPM stores these sorted, so the order doesn't matter.
 
 ### Optional
 
