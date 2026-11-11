@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 var (
@@ -59,7 +58,7 @@ func (d *accessListDataSource) Schema(_ context.Context, _ datasource.SchemaRequ
 			},
 		},
 		Blocks: map[string]schema.Block{
-			"item": schema.ListNestedBlock{
+			"item": schema.SetNestedBlock{
 				NestedObject: schema.NestedBlockObject{
 					Attributes: map[string]schema.Attribute{
 						"username": schema.StringAttribute{
@@ -68,7 +67,8 @@ func (d *accessListDataSource) Schema(_ context.Context, _ datasource.SchemaRequ
 						},
 						"password": schema.StringAttribute{
 							Computed:    true,
-							Description: "Basic auth password.",
+							Sensitive:   true,
+							Description: "Always empty, NPM doesn't return the passwords.",
 						},
 					},
 				},
@@ -100,8 +100,6 @@ func (d *accessListDataSource) Read(ctx context.Context, req datasource.ReadRequ
 		return
 	}
 
-	tflog.Info(ctx, fmt.Sprintf("DEBUG: %+v", state))
-
 	id, err := strconv.Atoi(state.ID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -125,7 +123,13 @@ func (d *accessListDataSource) Read(ctx context.Context, req datasource.ReadRequ
 	state.SatisfyAny = types.BoolValue(*access_list.SatisfyAny)
 	state.OwnerUserID = types.Int64Value(int64(access_list.OwnerUserID))
 
-	// We don't read Items as the password isn't returned from the API
+	state.Items = []models.AccessListItemModel{}
+	for _, item := range *access_list.Items {
+		state.Items = append(state.Items, models.AccessListItemModel{
+			Username: types.StringPointerValue(item.Username),
+			Password: types.StringNull(),
+		})
+	}
 
 	state.Clients = []models.AccessListClientModel{}
 	for _, client := range *access_list.Clients {

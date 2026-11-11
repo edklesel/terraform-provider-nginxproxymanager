@@ -58,7 +58,8 @@ data "nginxproxymanager_access_list" "test" {
 `, name),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.nginxproxymanager_access_list.test", "name", name),
-					resource.TestCheckResourceAttr("data.nginxproxymanager_access_list.test", "item.#", "0"), // Items aren't returned by the read function
+					resource.TestCheckResourceAttr("data.nginxproxymanager_access_list.test", "item.#", "2"),
+					resource.TestCheckTypeSetElemNestedAttrs("data.nginxproxymanager_access_list.test", "item.*", map[string]string{"username": "username1"}),
 					resource.TestCheckResourceAttr("data.nginxproxymanager_access_list.test", "client.#", "3"),
 					resource.TestCheckResourceAttr("data.nginxproxymanager_access_list.test", "satisfy_any", "true"),
 					resource.TestCheckResourceAttr("data.nginxproxymanager_access_list.test", "pass_auth", "false"),

@@ -28,7 +28,7 @@ data "nginxproxymanager_access_list" "test" {
 ### Read-Only
 
 - `client` (Block List) (see [below for nested schema](#nestedblock--client))
-- `item` (Block List) (see [below for nested schema](#nestedblock--item))
+- `item` (Block Set) (see [below for nested schema](#nestedblock--item))
 - `name` (String) Name of the access list.
 - `owner_user_id` (Number) ID of the user who owns the access list.
 - `pass_auth` (Boolean) Whether responsibility for auth passes to the host.
@@ -48,5 +48,5 @@ Read-Only:
 
 Read-Only:
 
-- `password` (String) Basic auth password.
+- `password` (String, Sensitive) Always empty, NPM doesn't return the passwords.
 - `username` (String) Basic auth username.

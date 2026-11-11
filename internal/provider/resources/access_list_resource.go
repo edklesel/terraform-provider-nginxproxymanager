@@ -11,7 +11,6 @@ import (
 	models "github.com/edklesel/terraform-provider-nginxproxymanager/internal/models"
 	sdk "github.com/edklesel/terraform-provider-nginxproxymanager/internal/sdk"
 
-	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -22,7 +21,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 var (
@@ -54,7 +52,7 @@ func (r *accessListResource) Schema(_ context.Context, _ resource.SchemaRequest,
 				},
 			},
 			"name": schema.StringAttribute{
-				Optional:    true,
+				Required:    true,
 				Description: "Name of the access list.",
 			},
 			"satisfy_any": schema.BoolAttribute{
@@ -78,7 +76,8 @@ func (r *accessListResource) Schema(_ context.Context, _ resource.SchemaRequest,
 			},
 		},
 		Blocks: map[string]schema.Block{
-			"item": schema.ListNestedBlock{
+			// NPM inserts the users in parallel, so it doesn't keep their order
+			"item": schema.SetNestedBlock{
 				NestedObject: schema.NestedBlockObject{
 					Attributes: map[string]schema.Attribute{
 						"username": schema.StringAttribute{
@@ -86,14 +85,11 @@ func (r *accessListResource) Schema(_ context.Context, _ resource.SchemaRequest,
 							Required:    true,
 						},
 						"password": schema.StringAttribute{
-							Description: "Basic auth password.",
+							Description: "Basic auth password. NPM doesn't return passwords, so a password changed outside Terraform isn't detected.",
 							Required:    true,
 							Sensitive:   true,
 						},
 					},
-				},
-				Validators: []validator.List{
-					listvalidator.IsRequired(),
 				},
 			},
 			"client": schema.ListNestedBlock{
@@ -111,9 +107,6 @@ func (r *accessListResource) Schema(_ context.Context, _ resource.SchemaRequest,
 							},
 						},
 					},
-				},
-				Validators: []validator.List{
-					listvalidator.IsRequired(),
 				},
 			},
 		},
@@ -195,8 +188,6 @@ func (r *accessListResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 
-	tflog.Info(ctx, fmt.Sprintf("DEBUG: %+v", state))
-
 	id, err := strconv.Atoi(state.ID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
@@ -220,7 +211,7 @@ func (r *accessListResource) Read(ctx context.Context, req resource.ReadRequest,
 	state.SatisfyAny = types.BoolValue(*access_list.SatisfyAny)
 	state.OwnerUserID = types.Int64Value(int64(access_list.OwnerUserID))
 
-	// We don't read Items as the password isn't returned from the API
+	state.Items = accessListItems(*access_list.Items, state.Items)
 
 	state.Clients = []models.AccessListClientModel{}
 	for _, client := range *access_list.Clients {
@@ -344,4 +335,31 @@ func (r *accessListResource) Configure(_ context.Context, req resource.Configure
 
 func (r *accessListResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+}
+
+// accessListItems returns the users of an access list as NPM has them. NPM
+// never returns the passwords, so they're taken from the known users with
+// the same username. Users that aren't known, e.g after an import, get an
+// empty password, so the configured one is set on the next apply.
+func accessListItems(items []sdk.AccessListItem, known []models.AccessListItemModel) []models.AccessListItemModel {
+	passwords := map[string]types.String{}
+	for _, item := range known {
+		passwords[item.Username.ValueString()] = item.Password
+	}
+
+	result := []models.AccessListItemModel{}
+	for _, item := range items {
+		if item.Username == nil {
+			continue
+		}
+		password, ok := passwords[*item.Username]
+		if !ok || password.IsNull() || password.IsUnknown() {
+			password = types.StringValue("")
+		}
+		result = append(result, models.AccessListItemModel{
+			Username: types.StringValue(*item.Username),
+			Password: password,
+		})
+	}
+	return result
 }
