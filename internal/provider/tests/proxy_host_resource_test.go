@@ -15,6 +15,7 @@ import (
 func TestAccProxyHostResource(t *testing.T) {
 
 	var id = rand.IntN(1e4)
+	certificate := customCertificateConfig(fmt.Sprintf("proxy_host_%d", id))
 
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -123,7 +124,7 @@ resource "nginxproxymanager_proxy_host" "test" {
 				ExpectError: regexp.MustCompile("hsts_subdomains cannot be true when hsts_enabled is false"),
 			},
 			{
-				Config: providerConfig + fmt.Sprintf(`
+				Config: providerConfig + certificate + fmt.Sprintf(`
 resource "nginxproxymanager_proxy_host" "test" {
   forward_host = "test123_%d.com"
   forward_port = 8081
@@ -143,10 +144,14 @@ resource "nginxproxymanager_proxy_host" "test" {
     forward_host   = "10.0.0.11"
     forward_port   = 9001
   }
-}`, id, id, id, id),
+
+  certificate_id = nginxproxymanager_custom_certificate.proxy_host_%d.id
+  ssl_forced     = true
+}`, id, id, id, id, id),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "location.#", "1"),
 					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "location.0.forward_port", "9001"),
+					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "ssl_forced", "true"),
 					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "forward_host", fmt.Sprintf("test123_%d.com", id)),
 					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "forward_port", "8081"),
 					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "forward_scheme", "https"),
