@@ -21,6 +21,7 @@ description: |-
 
 ### Read-Only
 
+- `enabled` (Boolean) Whether the stream is enabled.
 - `forwarding_host` (String) Host that the stream is forwarded to.
 - `forwarding_port` (Number) Port that the stream is forwarded on.
 - `incoming_port` (Number) Port the request is coming in on.

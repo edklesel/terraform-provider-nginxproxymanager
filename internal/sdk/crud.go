@@ -261,6 +261,32 @@ func (o crudObject[O, OB, OC]) Delete(id int) error {
 	return _delete[O](o.client, o.apiPath, id)
 }
 
+// Enable or disable an object. NPM only regenerates the nginx config when
+// this is done through the enable/disable endpoints, not through an update.
+func (o crudObject[O, OB, OC]) SetEnabled(id int, enabled bool) error {
+	action := "disable"
+	if enabled {
+		action = "enable"
+	}
+
+	_, err := o.client.NewRequest(
+		fmt.Sprintf("%s/%d/%s", o.apiPath, id, action),
+		http.MethodPost,
+		nil,
+		true,
+		nil,
+	)
+	// NPM refuses to enable an enabled host or disable a disabled one, which
+	// means there's nothing to do.
+	if err != nil && strings.Contains(err.Error(), "already") {
+		return nil
+	}
+	if err != nil {
+		return fmt.Errorf("unable to %s object with ID %d: %s", action, id, err)
+	}
+	return nil
+}
+
 func (o crudObject[O, OB, OC]) ClientVersion() *version.Version {
 	return o.client.Version
 }

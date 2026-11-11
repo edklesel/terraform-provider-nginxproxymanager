@@ -23,6 +23,7 @@ description: |-
 
 ### Optional
 
+- `enabled` (Boolean) Enable or disable the stream.
 - `tcp_forwarding` (Boolean) Whether to enable TCP Forwarding
 - `udp_forwarding` (Boolean) Whether to enable UDP Forwarding
 
