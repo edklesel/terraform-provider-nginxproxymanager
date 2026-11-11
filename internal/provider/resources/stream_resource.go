@@ -145,6 +145,11 @@ func (r *streamResource) Read(ctx context.Context, req resource.ReadRequest, res
 	}
 
 	stream, err := r.client.Streams.Get(id)
+	if sdk.IsNotFound(err) {
+		// Deleted outside Terraform, so plan to create it again
+		resp.State.RemoveResource(ctx)
+		return
+	}
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("Unable to read stream with ID %s.", state.ID.ValueString()),
@@ -237,7 +242,7 @@ func (r *streamResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	}
 
 	err = r.client.Streams.Delete(id)
-	if err != nil {
+	if err != nil && !sdk.IsNotFound(err) {
 		resp.Diagnostics.AddError(
 			"Error deleting stream",
 			fmt.Sprintf("Unable to delete stream, unexpected error: %s", err.Error()),

@@ -268,6 +268,11 @@ func (r *redirectionHostResource) Read(ctx context.Context, req resource.ReadReq
 	}
 
 	redirectionHost, err := r.client.RedirectionHosts.Get(id)
+	if sdk.IsNotFound(err) {
+		// Deleted outside Terraform, so plan to create it again
+		resp.State.RemoveResource(ctx)
+		return
+	}
 	if err != nil {
 		resp.Diagnostics.AddError(
 			fmt.Sprintf("Unable to read redirection host with ID %s.", state.ID.ValueString()),
@@ -393,7 +398,7 @@ func (r *redirectionHostResource) Delete(ctx context.Context, req resource.Delet
 	}
 
 	err = r.client.RedirectionHosts.Delete(id)
-	if err != nil {
+	if err != nil && !sdk.IsNotFound(err) {
 		resp.Diagnostics.AddError(
 			"Error deleting redirection host",
 			fmt.Sprintf("Unable to delete redirection host, unexpected error: %s", err.Error()),

@@ -8,6 +8,8 @@ import (
 	"math/rand/v2"
 	"testing"
 
+	sdk "github.com/edklesel/terraform-provider-nginxproxymanager/internal/sdk"
+
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
@@ -59,6 +61,23 @@ resource "nginxproxymanager_stream" "test" {
 					resource.TestCheckResourceAttr("nginxproxymanager_stream.test", "tcp_forwarding", "false"),
 					resource.TestCheckResourceAttr("nginxproxymanager_stream.test", "udp_forwarding", "true"),
 				),
+			},
+			// Deleting the stream outside Terraform, e.g in the UI, makes
+			// Terraform plan to create it again instead of failing
+			{
+				Config: providerConfig + fmt.Sprintf(`
+resource "nginxproxymanager_stream" "test" {
+  forwarding_host = "test_%d.com"
+  forwarding_port = %d
+  incoming_port   = %d
+  
+  tcp_forwarding  = false
+  udp_forwarding = true
+
+
+}`, id, id+1, id),
+				Check:              deleteInNPM("nginxproxymanager_stream.test", func(c *sdk.Client, id int) error { return c.Streams.Delete(id) }),
+				ExpectNonEmptyPlan: true,
 			},
 		},
 	})

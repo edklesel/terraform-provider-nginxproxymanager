@@ -124,6 +124,31 @@ resource "nginxproxymanager_user_permissions" "test" {
 					},
 				),
 			},
+			// Deleting the user outside Terraform takes its permissions with it,
+			// and Terraform plans to create both again instead of failing
+			{
+				Config: providerConfig + fmt.Sprintf(`
+resource "nginxproxymanager_user" "test" {
+  name     = "test_name"
+  nickname = "test_nickname"
+  email    = "%s"
+  roles    = ["admin"]
+}
+resource "nginxproxymanager_user_permissions" "test" {
+  user_id = nginxproxymanager_user.test.id
+  permissions {
+    visibility = "%s"
+	proxy_hosts = "%s"
+	redirection_hosts = "%s"
+	dead_hosts = "%s"
+	streams = "%s"
+	access_lists = "%s"
+	# Certificates are left as default
+  }
+}`, email, permissions["visibility"], permissions["proxy_hosts"], permissions["redirection_hosts"], permissions["dead_hosts"], permissions["streams"], permissions["access_lists"]),
+				Check:              deleteInNPM("nginxproxymanager_user.test", func(c *sdk.Client, id int) error { return c.Users.Delete(id) }),
+				ExpectNonEmptyPlan: true,
+			},
 		},
 	})
 }
