@@ -62,10 +62,7 @@ Required:
 - `forward_host` (String) Host to forward the request on to.
 - `forward_port` (Number) Port to forward to.
 - `forward_scheme` (String) Scheme to use when forwarding.
-
-Optional:
-
-- `path` (String) Path on the forward host.
+- `path` (String) Path to match, e.g `/api`.
 
 ## Import
 

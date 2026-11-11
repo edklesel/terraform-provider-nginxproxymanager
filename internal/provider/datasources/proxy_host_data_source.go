@@ -124,7 +124,7 @@ func (d *proxyHostDataSource) Schema(_ context.Context, _ datasource.SchemaReque
 						},
 						"path": schema.StringAttribute{
 							Computed:    true,
-							Description: "Path on the forward host.",
+							Description: "Path matched by the location.",
 						},
 					},
 				},

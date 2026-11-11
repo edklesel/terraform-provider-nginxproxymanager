@@ -6,11 +6,10 @@ package provider
 import "github.com/hashicorp/terraform-plugin-framework/types"
 
 type ProxyHostLocationModel struct {
-	ForwardScheme types.String   `tfsdk:"forward_scheme"`
-	DomainNames   []types.String `tfsdk:"domain_names"`
-	ForwardHost   types.String   `tfsdk:"forward_host"`
-	ForwardPort   types.Int64    `tfsdk:"forward_port"`
-	Path          types.String   `tfsdk:"path"`
+	ForwardScheme types.String `tfsdk:"forward_scheme"`
+	ForwardHost   types.String `tfsdk:"forward_host"`
+	ForwardPort   types.Int64  `tfsdk:"forward_port"`
+	Path          types.String `tfsdk:"path"`
 }
 
 type ProxyHostModel struct {
