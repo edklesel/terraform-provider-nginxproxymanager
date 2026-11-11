@@ -32,5 +32,5 @@ data "nginxproxymanager_custom_certificate" "example" {
 ### Read-Only
 
 - `certificate` (String) Body of the certificate in PEM format.
-- `certificate_key` (String) Private key of the certificate in PEM format.
+- `certificate_key` (String, Sensitive) Private key of the certificate in PEM format.
 - `nice_name` (String) Nice name for the certificate.

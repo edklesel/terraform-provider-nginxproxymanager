@@ -18,18 +18,20 @@ func TestAccCustomCertificateResource(t *testing.T) {
 	id := rand.IntN(1e4)
 	name := fmt.Sprintf("test_%d", id)
 	cert, key := sdk.NewCertWithKey()
-
-	resource.Test(t, resource.TestCase{
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: providerConfig + fmt.Sprintf(`
+	cert2, key2 := sdk.NewCertWithKey()
+	config := providerConfig + fmt.Sprintf(`
 	resource "nginxproxymanager_custom_certificate" "test" {
 	  nice_name       = "%s"
 	  certificate     = base64decode("%s")
 	  certificate_key = base64decode("%s")
 	}
-	`, name, base64.StdEncoding.EncodeToString([]byte(cert)), base64.StdEncoding.EncodeToString([]byte(key))),
+	`, name, base64.StdEncoding.EncodeToString([]byte(cert)), base64.StdEncoding.EncodeToString([]byte(key)))
+
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: config,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet("nginxproxymanager_custom_certificate.test", "id"),
 					resource.TestCheckResourceAttr("nginxproxymanager_custom_certificate.test", "nice_name", name),
@@ -41,6 +43,16 @@ func TestAccCustomCertificateResource(t *testing.T) {
 				ResourceName:      "nginxproxymanager_custom_certificate.test",
 				ImportState:       true,
 				ImportStateVerify: true,
+			},
+			// nice_name is optional, NPM then keeps an empty one
+			{
+				Config: config + fmt.Sprintf(`
+	resource "nginxproxymanager_custom_certificate" "no_name" {
+	  certificate     = base64decode("%s")
+	  certificate_key = base64decode("%s")
+	}
+	`, base64.StdEncoding.EncodeToString([]byte(cert2)), base64.StdEncoding.EncodeToString([]byte(key2))),
+				Check: resource.TestCheckResourceAttr("nginxproxymanager_custom_certificate.no_name", "nice_name", ""),
 			},
 		},
 	})

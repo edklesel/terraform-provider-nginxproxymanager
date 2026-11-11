@@ -46,7 +46,7 @@ resource "nginxproxymanager_custom_certificate" "example" {
 ### Required
 
 - `certificate` (String) Body of the certificate in PEM format.
-- `certificate_key` (String) Private key of the certificate in PEM format.
+- `certificate_key` (String, Sensitive) Private key of the certificate in PEM format.
 
 ### Optional
 

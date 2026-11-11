@@ -50,6 +50,7 @@ func (r *customCertificateDataSource) Schema(_ context.Context, _ datasource.Sch
 			},
 			"certificate_key": schema.StringAttribute{
 				Computed:    true,
+				Sensitive:   true,
 				Description: "Private key of the certificate in PEM format.",
 			},
 			// Not implemented in the return from the API request

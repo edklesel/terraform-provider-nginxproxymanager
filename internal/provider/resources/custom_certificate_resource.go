@@ -50,9 +50,11 @@ func (r *customCertificateResource) Schema(_ context.Context, _ resource.SchemaR
 			},
 			"nice_name": schema.StringAttribute{
 				Optional:    true,
+				Computed:    true,
 				Description: "Nice name for the certificate.",
 				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.RequiresReplace(),
+					stringplanmodifier.UseStateForUnknown(),
+					stringplanmodifier.RequiresReplaceIfConfigured(),
 				},
 			},
 			"certificate": schema.StringAttribute{
@@ -64,6 +66,7 @@ func (r *customCertificateResource) Schema(_ context.Context, _ resource.SchemaR
 			},
 			"certificate_key": schema.StringAttribute{
 				Required:    true,
+				Sensitive:   true,
 				Description: "Private key of the certificate in PEM format.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
@@ -90,8 +93,10 @@ func (r *customCertificateResource) Create(ctx context.Context, req resource.Cre
 	}
 
 	var _certificate = sdk.CertificateBase{
-		NiceName: plan.NiceName.ValueStringPointer(),
 		Provider: utils.ReturnPointer("other"),
+	}
+	if !plan.NiceName.IsUnknown() {
+		_certificate.NiceName = plan.NiceName.ValueStringPointer()
 	}
 
 	certUpload := sdk.CertificateUpload{
