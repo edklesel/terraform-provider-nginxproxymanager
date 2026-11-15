@@ -172,6 +172,7 @@ func (r *deadHostResource) Create(ctx context.Context, req resource.CreateReques
 	var _deadHost = sdk.DeadHostBase{
 		DomainNames:    utils.ReturnPointer([]string{}),
 		CertificateID:  utils.ReturnPointer(int(plan.CertificateID.ValueInt64())),
+		SSLForced:      plan.SSLForced.ValueBoolPointer(),
 		AdvancedConfig: plan.AdvancedConfig.ValueStringPointer(),
 		HTTP2Support:   plan.HTTP2Support.ValueBoolPointer(),
 		HSTSEnabled:    plan.HSTSEnabled.ValueBoolPointer(),
@@ -282,6 +283,7 @@ func (r *deadHostResource) Update(ctx context.Context, req resource.UpdateReques
 	var _deadHost = sdk.DeadHostBase{
 		DomainNames:    utils.ReturnPointer([]string{}),
 		CertificateID:  utils.ReturnPointer(int(plan.CertificateID.ValueInt64())),
+		SSLForced:      plan.SSLForced.ValueBoolPointer(),
 		AdvancedConfig: plan.AdvancedConfig.ValueStringPointer(),
 		HTTP2Support:   plan.HTTP2Support.ValueBoolPointer(),
 		HSTSEnabled:    plan.HSTSEnabled.ValueBoolPointer(),

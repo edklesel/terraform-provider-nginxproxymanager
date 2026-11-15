@@ -15,6 +15,7 @@ import (
 func TestAccDeadHostResource(t *testing.T) {
 
 	var id = rand.IntN(1e4)
+	certificate := customCertificateConfig(fmt.Sprintf("dead_host_%d", id))
 
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
@@ -82,16 +83,19 @@ resource "nginxproxymanager_dead_host" "test" {
 				ExpectError: regexp.MustCompile("hsts_subdomains cannot be true when hsts_enabled is false"),
 			},
 			{
-				Config: providerConfig + fmt.Sprintf(`
+				Config: providerConfig + certificate + fmt.Sprintf(`
 resource "nginxproxymanager_dead_host" "test" {
   domain_names = [
 	"domain2_%d.com",
 	"domain3_%d.com",
 	"domain4_%d.com",
   ]
-  
-}`, id, id, id),
+
+  certificate_id = nginxproxymanager_custom_certificate.dead_host_%d.id
+  ssl_forced     = true
+}`, id, id, id, id),
 				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("nginxproxymanager_dead_host.test", "ssl_forced", "true"),
 					resource.TestCheckResourceAttr("nginxproxymanager_dead_host.test", "domain_names.#", "3"),
 					resource.TestCheckResourceAttr("nginxproxymanager_dead_host.test", "domain_names.0", fmt.Sprintf("domain2_%d.com", id)),
 					resource.TestCheckResourceAttr("nginxproxymanager_dead_host.test", "domain_names.1", fmt.Sprintf("domain3_%d.com", id)),
