@@ -6,6 +6,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strconv"
 
 	models "github.com/edklesel/terraform-provider-nginxproxymanager/internal/models"
@@ -56,7 +57,10 @@ func (r *userResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 			},
 			"email": schema.StringAttribute{
 				Required:    true,
-				Description: "Email of the user, used for logging in.",
+				Description: "Email of the user, used for logging in. Must be lowercase, as NPM lowercases it when updating a user.",
+				Validators: []validator.String{
+					stringvalidator.RegexMatches(regexp.MustCompile(`^[^A-Z]*$`), "must be lowercase, as NPM lowercases email addresses when updating a user"),
+				},
 			},
 			"name": schema.StringAttribute{
 				Required:    true,

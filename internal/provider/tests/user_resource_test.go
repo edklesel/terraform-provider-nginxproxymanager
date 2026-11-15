@@ -4,6 +4,7 @@
 package tests
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
@@ -13,6 +14,18 @@ func TestAccUserResource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
+			// NPM lowercases the email when the user is updated, so it must
+			// be lowercase in the config
+			{
+				Config: providerConfig + `
+resource "nginxproxymanager_user" "test" {
+  name     = "test_name"
+  nickname = "test_nickname"
+  email    = "Test@example.com"
+}`,
+				PlanOnly:    true,
+				ExpectError: regexp.MustCompile("must be lowercase"),
+			},
 			{
 				Config: providerConfig + `
 resource "nginxproxymanager_user" "test" {
