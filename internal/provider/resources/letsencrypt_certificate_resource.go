@@ -6,14 +6,15 @@ package provider
 import (
 	"context"
 	"fmt"
+	"slices"
 	"strconv"
+	"strings"
 
 	models "github.com/edklesel/terraform-provider-nginxproxymanager/internal/models"
 	sdk "github.com/edklesel/terraform-provider-nginxproxymanager/internal/sdk"
 	utils "github.com/edklesel/terraform-provider-nginxproxymanager/internal/utils"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
-	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -30,21 +31,7 @@ var (
 	_ resource.Resource                = &letsencryptCertificateResource{}
 	_ resource.ResourceWithConfigure   = &letsencryptCertificateResource{}
 	_ resource.ResourceWithImportState = &letsencryptCertificateResource{}
-
-	dnsProviders = []string{
-		"acmedns", "active24", "aliyun", "azure", "baidu", "beger", "bunny",
-		"cdmon", "cloudflare", "cloudns", "cloudxns", "constellix", "corenetworks",
-		"cpanel", "ddnss", "dsec", "duckdns", "digitalocean", "directadmin",
-		"dnsimple", "dnsmadeeasy", "dnsmulti", "dnspod", "domainoffensive",
-		"domeneshop", "dynu", "easydns", "eurodns", "firstdomains", "freedns",
-		"gandi", "gcore", "godaddy", "google", "googledomains", "he", "hetner",
-		"hostingnl", "hover", "infomaniak", "inwx", "ionos", "ispconfig", "isset",
-		"joker", "leaseweb", "linode", "loopia", "luadns", "mijnhost", "namecheap",
-		"netcup", "nictu", "njalla", "nsone", "oci", "ovn", "plesk", "porkbun",
-		"powerdns", "regru", "rfc2136", "rockenstein", "route53", "spaceship",
-		"strato", "selecte1v2", "timeweb", "transip", "tencentcloud", "vultr",
-		"websupport", "wedos", "edgedns", "zoneedit",
-	}
+	_ resource.ResourceWithModifyPlan  = &letsencryptCertificateResource{}
 )
 
 type letsencryptCertificateResource struct {
@@ -94,10 +81,7 @@ func (r *letsencryptCertificateResource) Schema(_ context.Context, _ resource.Sc
 			},
 			"dns_provider": schema.StringAttribute{
 				Optional:    true,
-				Description: "Which DNS provider to use for the DNS challenge. Must be set if `dns_challenge` it `true`.",
-				Validators: []validator.String{
-					stringvalidator.OneOf(dnsProviders...),
-				},
+				Description: "Which DNS provider to use for the DNS challenge, one of the IDs NPM lists in `GET /api/nginx/certificates/dns-providers`. Must be set if `dns_challenge` is `true`.",
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
 				},
@@ -163,6 +147,45 @@ func (r *letsencryptCertificateResource) Schema(_ context.Context, _ resource.Sc
 			// 	},
 			// },
 		},
+	}
+}
+
+// ModifyPlan checks the DNS provider against the ones the running NPM
+// supports, as that list changes between NPM versions.
+func (r *letsencryptCertificateResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	if r.client == nil || req.Plan.Raw.IsNull() {
+		return
+	}
+
+	var dnsProvider types.String
+	resp.Diagnostics.Append(req.Plan.GetAttribute(ctx, path.Root("dns_provider"), &dnsProvider)...)
+	if resp.Diagnostics.HasError() || dnsProvider.IsNull() || dnsProvider.IsUnknown() {
+		return
+	}
+
+	if !req.State.Raw.IsNull() {
+		var current types.String
+		resp.Diagnostics.Append(req.State.GetAttribute(ctx, path.Root("dns_provider"), &current)...)
+		if current.Equal(dnsProvider) {
+			return
+		}
+	}
+
+	providers, err := r.client.Certificates.DNSProviders()
+	if err != nil {
+		resp.Diagnostics.AddWarning("Unable to check the DNS provider", err.Error())
+		return
+	}
+	ids := make([]string, 0, len(providers))
+	for _, p := range providers {
+		ids = append(ids, p.ID)
+	}
+	if !slices.Contains(ids, dnsProvider.ValueString()) {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("dns_provider"),
+			"Unsupported DNS provider",
+			fmt.Sprintf("NPM doesn't support the DNS provider %q. Supported providers are: %s", dnsProvider.ValueString(), strings.Join(ids, ", ")),
+		)
 	}
 }
 

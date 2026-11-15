@@ -158,3 +158,28 @@ func (o certObject) ClientVersion() *version.Version {
 func (o certObject) GetWriteOnlyFields() []string {
 	return o.writeOnlyFields
 }
+
+type DNSProvider struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Credentials string `json:"credentials"`
+}
+
+// DNSProviders lists the DNS providers the running NPM supports for DNS
+// challenges, with an example of the credentials each one expects.
+func (o certObject) DNSProviders() (providers []DNSProvider, err error) {
+	response, err := o.client.NewRequest(
+		fmt.Sprintf("%s/dns-providers", o.apiPath),
+		http.MethodGet,
+		nil,
+		true,
+		nil,
+	)
+	if err != nil {
+		return providers, fmt.Errorf("unable to list DNS providers: %s", err)
+	}
+	if err = json.Unmarshal(response, &providers); err != nil {
+		return providers, fmt.Errorf("unable to unmarshal json response: %s", err)
+	}
+	return providers, nil
+}
