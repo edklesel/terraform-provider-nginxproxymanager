@@ -326,6 +326,7 @@ func (r *redirectionHostResource) Update(ctx context.Context, req resource.Updat
 		ForwardScheme:     plan.ForwardScheme.ValueStringPointer(),
 		DomainNames:       utils.ReturnPointer([]string{}),
 		CertificateID:     utils.ReturnPointer(int(plan.CertificateID.ValueInt64())),
+		SSLForced:         plan.SSLForced.ValueBoolPointer(),
 		BlockExploits:     plan.BlockExploits.ValueBoolPointer(),
 		AdvancedConfig:    plan.AdvancedConfig.ValueStringPointer(),
 		HTTP2Support:      plan.HTTP2Support.ValueBoolPointer(),
