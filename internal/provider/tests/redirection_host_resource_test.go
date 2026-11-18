@@ -118,9 +118,11 @@ resource "nginxproxymanager_redirection_host" "test" {
 
   certificate_id = nginxproxymanager_custom_certificate.redirection_host_%d.id
   ssl_forced     = true
+  enabled        = false
 }`, id, id, id, id, id),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("nginxproxymanager_redirection_host.test", "ssl_forced", "true"),
+					resource.TestCheckResourceAttr("nginxproxymanager_redirection_host.test", "enabled", "false"),
 					resource.TestCheckResourceAttr("nginxproxymanager_redirection_host.test", "forward_domain_name", fmt.Sprintf("test123_%d.com", id)),
 					resource.TestCheckResourceAttr("nginxproxymanager_redirection_host.test", "forward_http_code", "302"),
 					resource.TestCheckResourceAttr("nginxproxymanager_redirection_host.test", "domain_names.#", "3"),
