@@ -74,6 +74,12 @@ func (r *streamResource) Schema(_ context.Context, _ resource.SchemaRequest, res
 				Description: "Whether to enable UDP Forwarding",
 				Default:     booldefault.StaticBool(false),
 			},
+			"enabled": schema.BoolAttribute{
+				Optional:    true,
+				Computed:    true,
+				Description: "Enable or disable the stream.",
+				Default:     booldefault.StaticBool(true),
+			},
 			"owner_user_id": schema.Int64Attribute{
 				Computed:    true,
 				Description: "ID of the user which owns the stream.",
@@ -118,6 +124,10 @@ func (r *streamResource) Create(ctx context.Context, req resource.CreateRequest,
 	plan.IncomingPort = types.Int64Value(int64(*stream.IncomingPort))
 	plan.TCPForwarding = types.BoolValue(*stream.TCPForwarding)
 	plan.UDPForwarding = types.BoolValue(*stream.UDPForwarding)
+	plan.Enabled, err = applyEnabled(r.client.Streams, stream.ID, stream.Enabled, plan.Enabled)
+	if err != nil {
+		resp.Diagnostics.AddError("Error enabling or disabling stream.", err.Error())
+	}
 
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
@@ -160,6 +170,7 @@ func (r *streamResource) Read(ctx context.Context, req resource.ReadRequest, res
 	state.IncomingPort = types.Int64Value(int64(*stream.IncomingPort))
 	state.TCPForwarding = types.BoolValue(*stream.TCPForwarding)
 	state.UDPForwarding = types.BoolValue(*stream.UDPForwarding)
+	state.Enabled = types.BoolValue(stream.Enabled != nil && *stream.Enabled)
 
 	diags = resp.State.Set(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -210,6 +221,10 @@ func (r *streamResource) Update(ctx context.Context, req resource.UpdateRequest,
 	plan.IncomingPort = types.Int64Value(int64(*stream.IncomingPort))
 	plan.TCPForwarding = types.BoolValue(*stream.TCPForwarding)
 	plan.UDPForwarding = types.BoolValue(*stream.UDPForwarding)
+	plan.Enabled, err = applyEnabled(r.client.Streams, id, stream.Enabled, plan.Enabled)
+	if err != nil {
+		resp.Diagnostics.AddError("Error enabling or disabling stream.", err.Error())
+	}
 
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)

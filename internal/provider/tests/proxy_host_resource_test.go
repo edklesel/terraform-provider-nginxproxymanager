@@ -137,6 +137,7 @@ resource "nginxproxymanager_proxy_host" "test" {
   
   allow_websocket_upgrade = true
   caching_enabled         = true
+  enabled                 = false
 
   location {
     path           = "/api"
@@ -152,6 +153,7 @@ resource "nginxproxymanager_proxy_host" "test" {
 					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "location.#", "1"),
 					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "location.0.forward_port", "9001"),
 					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "ssl_forced", "true"),
+					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "enabled", "false"),
 					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "forward_host", fmt.Sprintf("test123_%d.com", id)),
 					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "forward_port", "8081"),
 					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "forward_scheme", "https"),

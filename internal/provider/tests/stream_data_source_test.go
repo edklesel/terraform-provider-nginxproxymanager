@@ -36,6 +36,7 @@ data "nginxproxymanager_stream" "test" {
 					resource.TestCheckResourceAttr("data.nginxproxymanager_stream.test", "incoming_port", fmt.Sprintf("%d", id+1)),
 					resource.TestCheckResourceAttr("data.nginxproxymanager_stream.test", "tcp_forwarding", "true"),
 					resource.TestCheckResourceAttr("data.nginxproxymanager_stream.test", "udp_forwarding", "false"),
+					resource.TestCheckResourceAttr("data.nginxproxymanager_stream.test", "enabled", "true"),
 				),
 			},
 		},
