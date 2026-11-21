@@ -90,6 +90,23 @@ resource "nginxproxymanager_user_password" "test" {
 					},
 				),
 			},
+			// Deleting the user outside Terraform takes its password with it,
+			// and Terraform plans to create both again instead of failing
+			{
+				Config: providerConfig + fmt.Sprintf(`
+resource "nginxproxymanager_user" "test" {
+  name     = "test_name"
+  nickname = "test_nickname"
+  email    = "%s"
+  roles    = ["admin"]
+}
+resource "nginxproxymanager_user_password" "test" {
+  user_id  = nginxproxymanager_user.test.id
+  password = "%s_updated"
+}`, username, password),
+				Check:              deleteInNPM("nginxproxymanager_user.test", func(c *sdk.Client, id int) error { return c.Users.Delete(id) }),
+				ExpectNonEmptyPlan: true,
+			},
 		},
 	})
 }

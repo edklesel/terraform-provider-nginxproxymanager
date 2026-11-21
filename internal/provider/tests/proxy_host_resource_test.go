@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"testing"
 
+	sdk "github.com/edklesel/terraform-provider-nginxproxymanager/internal/sdk"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
@@ -165,6 +166,37 @@ resource "nginxproxymanager_proxy_host" "test" {
 					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "allow_websocket_upgrade", "true"),
 					resource.TestCheckResourceAttr("nginxproxymanager_proxy_host.test", "caching_enabled", "true"),
 				),
+			},
+			// Deleting the proxy host outside Terraform, e.g in the UI, makes
+			// Terraform plan to create it again instead of failing
+			{
+				Config: providerConfig + certificate + fmt.Sprintf(`
+resource "nginxproxymanager_proxy_host" "test" {
+  forward_host = "test123_%d.com"
+  forward_port = 8081
+  forward_scheme = "https"
+  domain_names = [
+	"domain2_%d.com",
+	"domain3_%d.com",
+	"domain4_%d.com",
+  ]
+  
+  allow_websocket_upgrade = true
+  caching_enabled         = true
+  enabled                 = false
+
+  location {
+    path           = "/api"
+    forward_scheme = "http"
+    forward_host   = "10.0.0.11"
+    forward_port   = 9001
+  }
+
+  certificate_id = nginxproxymanager_custom_certificate.proxy_host_%d.id
+  ssl_forced     = true
+}`, id, id, id, id, id),
+				Check:              deleteInNPM("nginxproxymanager_proxy_host.test", func(c *sdk.Client, id int) error { return c.ProxyHosts.Delete(id) }),
+				ExpectNonEmptyPlan: true,
 			},
 		},
 	})

@@ -5,6 +5,7 @@ package go_npm_proxy_manager
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -132,6 +133,22 @@ func (o crudObject[O, OB, OC]) List() ([]O, error) {
 	return _list[O](o.client, o.apiPath)
 }
 
+// NotFoundError is returned when an object doesn't exist in NPM.
+type NotFoundError struct {
+	Object string
+	ID     int
+}
+
+func (e *NotFoundError) Error() string {
+	return fmt.Sprintf("%s with id %d not found", e.Object, e.ID)
+}
+
+// IsNotFound reports whether err means the object doesn't exist in NPM.
+func IsNotFound(err error) bool {
+	var notFound *NotFoundError
+	return errors.As(err, &notFound)
+}
+
 // Get an object by ID.
 func _get[O Object](c *Client, apiPath string, id int) (obj O, err error) {
 
@@ -147,7 +164,7 @@ func _get[O Object](c *Client, apiPath string, id int) (obj O, err error) {
 		}
 	}
 
-	return obj, fmt.Errorf("%s with id %d not found", getName(obj), id)
+	return obj, &NotFoundError{Object: getName(obj), ID: id}
 }
 func (o crudObject[O, OB, OC]) Get(id int) (O, error) {
 	return _get[O](o.client, o.apiPath, id)
